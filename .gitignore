@@ -1,0 +1,5 @@
+# Data per-komputer (daftar site IIS lokal, path share lokal) + installer besar -
+# BUKAN bagian dari "versi app" yang di-publish/di-update lewat git. Kalau ini
+# ke-track, `git reset --hard` pas Update Sekarang bisa nimpa/ngapus data
+# komputer orang lain dengan punya yang publish. Lihat Services/UpdateService.cs.
+Data/
