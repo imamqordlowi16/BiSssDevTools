@@ -1,3 +1,6 @@
 Data/
 logs/
 *.log
+temp/
+*.zip
+*.old
