@@ -1,0 +1,246 @@
+<!doctype html>
+<!--
+  Layar terminal multi-tab untuk tab "Claude / AI Agent" -> mode Terminal. Dirender di
+  WebView2 (MainWindow.webTerminal); tiap tab = satu xterm.js + satu ConPTY sendiri di
+  host (Services\PseudoConsoleSession.cs). ID tab dialokasikan HOST.
+
+  Protokol pesan (JSON lewat chrome.webview), semua per-tab membawa `id`:
+    JS -> host : ready | newTabRequest | focused{id} | opened{id,cols,rows} | input{id,data}
+                 | resize{id,cols,rows} | activate{id} | close{id} | paste{id}
+                 | copy{data} | openUrl{url}
+    host -> JS : newTab{id,title} | title{id,title} | busy{id,busy} | output{id,data}
+                 | clear{id} | reset{id} | focus{id} | paste{id,data} | submit{id,data,activate?}
+                 | closeTab{id}
+  xterm.js 5.5.0 + addon fit/web-links disertakan lokal (tanpa CDN - app ini juga
+  dipakai di jaringan kantor tanpa internet). Lisensi: LICENSE-xterm.txt.
+-->
+<html>
+<head>
+<meta charset="utf-8">
+<title>ZeenIQ Terminal</title>
+<link rel="stylesheet" href="xterm.css">
+<style>
+  html, body { margin: 0; padding: 0; height: 100%; background: #080C14; overflow: hidden;
+               font-family: "Segoe UI", system-ui, sans-serif; }
+  #tabs { position: absolute; left: 0; right: 0; top: 0; height: 30px; display: flex; align-items: flex-end;
+          gap: 2px; padding: 0 6px; background: #0B1220; border-bottom: 1px solid #1E2A40; overflow-x: auto; overflow-y: hidden; }
+  #tabs::-webkit-scrollbar { height: 0; }
+  .tab { flex: 0 0 auto; display: flex; align-items: center; gap: 6px; height: 25px; padding: 0 6px 0 10px;
+         color: #8A9BB8; background: #101826; border: 1px solid #1E2A40; border-bottom: none;
+         border-radius: 6px 6px 0 0; font-size: 12px; cursor: pointer; user-select: none; max-width: 220px; }
+  .tab:hover { color: #DCDCDC; }
+  .tab.active { color: #FFFFFF; background: #080C14; border-color: #2C4A7A; position: relative; top: 1px; height: 26px; }
+  .tab .dot { width: 7px; height: 7px; border-radius: 50%; background: #4ADE80; flex: 0 0 auto; }
+  .tab.busy .dot { background: #22D3EE; box-shadow: 0 0 6px #22D3EE; }
+  .tab.dead .dot { background: #F25F5C; }
+  .tab .label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .tab .x { width: 18px; height: 18px; line-height: 17px; text-align: center; border-radius: 4px; color: #5B6B86; font-size: 14px; }
+  .tab .x:hover { background: #2A1620; color: #F25F5C; }
+  #add { flex: 0 0 auto; height: 22px; width: 26px; margin: 0 0 2px 4px; border: 1px solid #1E2A40; border-radius: 5px;
+         background: #101826; color: #22D3EE; font-size: 16px; line-height: 18px; cursor: pointer; }
+  #add:hover { background: #16233A; }
+  #stage { position: absolute; left: 0; right: 0; top: 31px; bottom: 0; }
+  .pane { position: absolute; inset: 6px 4px 6px 10px; visibility: hidden; }
+  .pane.active { visibility: visible; }
+  .xterm-viewport::-webkit-scrollbar { width: 10px; }
+  .xterm-viewport::-webkit-scrollbar-track { background: #080C14; }
+  .xterm-viewport::-webkit-scrollbar-thumb { background: #1E2A40; border-radius: 5px; }
+  .xterm-viewport::-webkit-scrollbar-thumb:hover { background: #2C3D5C; }
+</style>
+</head>
+<body>
+<div id="tabs"><button id="add" title="Tab terminal baru (Ctrl+Shift+T)">+</button></div>
+<div id="stage"></div>
+<script src="xterm.js"></script>
+<script src="addon-fit.js"></script>
+<script src="addon-web-links.js"></script>
+<script>
+(function () {
+  const host = window.chrome && window.chrome.webview;
+  const send = (msg) => { if (host) host.postMessage(msg); };
+  let hostInjecting = false; // true selama term.paste dari 'submit' (onData-nya sinkron)
+  const tabsEl = document.getElementById('tabs');
+  const addBtn = document.getElementById('add');
+  const stage = document.getElementById('stage');
+  const tabs = new Map(); // id -> {term, fit, pane, tabEl, labelEl, cols, rows}
+  let activeId = null;
+
+  const THEME = {
+    background: '#080C14', foreground: '#DCDCDC', cursor: '#22D3EE', cursorAccent: '#080C14',
+    selectionBackground: '#2C4A7A',
+    black: '#1B2333', red: '#F25F5C', green: '#4ADE80', yellow: '#FACC15',
+    blue: '#60A5FA', magenta: '#C084FC', cyan: '#22D3EE', white: '#DCDCDC',
+    brightBlack: '#5B6B86', brightRed: '#FF8785', brightGreen: '#86EFAC', brightYellow: '#FDE68A',
+    brightBlue: '#93C5FD', brightMagenta: '#D8B4FE', brightCyan: '#67E8F9', brightWhite: '#FFFFFF'
+  };
+
+  function fitTab(t, force) {
+    if (!t) return;
+    try { t.fit.fit(); } catch (_) { return; }
+    if (force || t.term.cols !== t.cols || t.term.rows !== t.rows) {
+      t.cols = t.term.cols; t.rows = t.term.rows;
+      send({ type: 'resize', id: t.id, cols: t.cols, rows: t.rows });
+    }
+  }
+
+  function activate(id, notifyHost) {
+    const t = tabs.get(id);
+    if (!t) return;
+    activeId = id;
+    for (const o of tabs.values()) {
+      o.pane.classList.toggle('active', o === t);
+      o.tabEl.classList.toggle('active', o === t);
+    }
+    fitTab(t, false);
+    t.tabEl.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+    t.term.focus();
+    if (notifyHost) send({ type: 'activate', id });
+  }
+
+  function createTab(id, title) {
+    const pane = document.createElement('div');
+    pane.className = 'pane';
+    stage.appendChild(pane);
+
+    const tabEl = document.createElement('div');
+    tabEl.className = 'tab';
+    tabEl.innerHTML = '<span class="dot"></span><span class="label"></span><span class="x" title="Tutup tab (Ctrl+Shift+W)">×</span>';
+    const labelEl = tabEl.querySelector('.label');
+    labelEl.textContent = title;
+    tabEl.title = title;
+    tabsEl.insertBefore(tabEl, addBtn);
+    tabEl.addEventListener('mousedown', (e) => {
+      if (e.button === 1) { e.preventDefault(); send({ type: 'close', id }); return; } // klik tengah = tutup
+      if (e.target.classList.contains('x')) return;
+      activate(id, true);
+    });
+    tabEl.querySelector('.x').addEventListener('click', (e) => { e.stopPropagation(); send({ type: 'close', id }); });
+
+    const term = new Terminal({
+      fontFamily: '"Cascadia Mono", "Cascadia Code", Consolas, "Lucida Console", monospace',
+      fontSize: 13, lineHeight: 1.1, cursorBlink: true, allowProposedApi: true,
+      scrollback: 10000, windowsPty: { backend: 'conpty' }, theme: THEME
+    });
+    const fit = new FitAddon.FitAddon();
+    term.loadAddon(fit);
+    term.loadAddon(new WebLinksAddon.WebLinksAddon((e, uri) => send({ type: 'openUrl', url: uri })));
+    term.open(pane);
+
+    const t = { id, term, fit, pane, tabEl, labelEl, cols: 0, rows: 0 };
+    tabs.set(id, t);
+
+    // src: 'host' = teks yang disuntik host (kotak input bawah/chip/tombol) lewat
+    // term.paste di 'submit'; 'user' = ketikan langsung di layar terminal. Host
+    // memakai ini untuk mengunci ketikan langsung selama Claude jalan di tab ini.
+    term.onData((d) => send({ type: 'input', id, data: d, src: hostInjecting ? 'host' : 'user' }));
+    term.onBinary((d) => send({ type: 'input', id, data: d, src: hostInjecting ? 'host' : 'user' }));
+    term.textarea.addEventListener('focus', () => send({ type: 'focused', id }));
+    // Klik di mana pun di area terminal = fokus ke xterm (jaga-jaga kalau fokus
+    // sempat direbut WPF).
+    pane.addEventListener('mousedown', () => setTimeout(() => term.focus(), 0));
+    term.attachCustomKeyEventHandler((e) => handleKey(t, e));
+    pane.addEventListener('contextmenu', (e) => {
+      e.preventDefault();
+      if (term.hasSelection()) { send({ type: 'copy', data: term.getSelection() }); term.clearSelection(); }
+      else send({ type: 'paste', id });
+    });
+
+    activate(id, false);
+    fitTab(t, true);
+    send({ type: 'opened', id, cols: term.cols, rows: term.rows });
+    return t;
+  }
+
+  function removeTab(id) {
+    const t = tabs.get(id);
+    if (!t) return;
+    const ids = [...tabs.keys()];
+    const idx = ids.indexOf(id);
+    t.term.dispose(); t.pane.remove(); t.tabEl.remove();
+    tabs.delete(id);
+    if (activeId === id) {
+      const next = ids[idx + 1] ?? ids[idx - 1];
+      if (next !== undefined && tabs.has(next)) activate(next, true);
+      else activeId = null;
+    }
+  }
+
+  function handleKey(t, e) {
+    if (e.type !== 'keydown') return true;
+    const k = e.key.toLowerCase();
+    // Ctrl+Shift+T = tab baru, Ctrl+Shift+W = tutup tab, Ctrl+Tab / Ctrl+Shift+Tab = pindah tab.
+    if (e.ctrlKey && e.shiftKey && k === 't') { send({ type: 'newTabRequest' }); return false; }
+    if (e.ctrlKey && e.shiftKey && k === 'w') { send({ type: 'close', id: t.id }); return false; }
+    if (e.ctrlKey && e.key === 'Tab') {
+      const ids = [...tabs.keys()];
+      if (ids.length > 1) {
+        const i = ids.indexOf(t.id);
+        activate(ids[(i + (e.shiftKey ? ids.length - 1 : 1)) % ids.length], true);
+      }
+      e.preventDefault();
+      return false;
+    }
+    // Ctrl+C dengan teks terseleksi = salin (gaya Windows Terminal); tanpa seleksi
+    // tetap diteruskan sebagai ^C (interrupt) ke proses.
+    if (e.ctrlKey && !e.shiftKey && k === 'c' && t.term.hasSelection()) {
+      send({ type: 'copy', data: t.term.getSelection() });
+      t.term.clearSelection();
+      return false;
+    }
+    if (e.ctrlKey && e.shiftKey && k === 'c') {
+      if (t.term.hasSelection()) send({ type: 'copy', data: t.term.getSelection() });
+      return false;
+    }
+    // Ctrl+V / Shift+Insert = tempel lewat host (teks apa adanya; gambar disimpan
+    // ke PNG lalu path-nya yang ditempel - Claude Code bisa membaca gambar dari path).
+    if ((e.ctrlKey && k === 'v') || (e.shiftKey && e.key === 'Insert')) {
+      e.preventDefault();
+      send({ type: 'paste', id: t.id });
+      return false;
+    }
+    // Shift+Enter = baris baru di prompt Claude Code (ESC+CR, sama dengan Alt+Enter).
+    if (e.key === 'Enter' && e.shiftKey && !e.ctrlKey && !e.altKey) {
+      send({ type: 'input', id: t.id, data: '\x1b\r' });
+      return false;
+    }
+    return true;
+  }
+
+  addBtn.addEventListener('click', () => send({ type: 'newTabRequest' }));
+
+  if (host) {
+    host.addEventListener('message', (ev) => {
+      const m = ev.data;
+      if (!m || !m.type) return;
+      if (m.type === 'newTab') { createTab(m.id, m.title || ('Terminal ' + m.id)); return; }
+      const t = m.id != null ? tabs.get(m.id) : tabs.get(activeId);
+      if (!t) return;
+      switch (m.type) {
+        case 'output': t.term.write(m.data); break;
+        case 'clear': t.term.clear(); break;
+        case 'reset': t.term.reset(); t.tabEl.classList.remove('dead'); break;
+        case 'focus': activate(t.id, false); break;
+        case 'title': t.labelEl.textContent = m.title; t.tabEl.title = m.title; break;
+        case 'busy': t.tabEl.classList.toggle('busy', !!m.busy); break;
+        case 'exited': t.tabEl.classList.add('dead'); t.tabEl.classList.remove('busy'); break;
+        case 'paste': if (m.data) t.term.paste(m.data); t.term.focus(); break;
+        // Perintah dari luar layar (kotak input / chip / tombol): tempel lalu Enter,
+        // lewat kanal yang sama dengan ketikan biasa supaya urutannya terjaga.
+        case 'submit':
+          hostInjecting = true;
+          try { t.term.paste(m.data || ''); } finally { hostInjecting = false; }
+          send({ type: 'input', id: t.id, data: '\r', src: 'host' });
+          if (m.activate !== false) activate(t.id, false);
+          break;
+        case 'closeTab': removeTab(t.id); break;
+      }
+    });
+  }
+
+  new ResizeObserver(() => fitTab(tabs.get(activeId), false)).observe(stage);
+  window.addEventListener('focus', () => { const t = tabs.get(activeId); if (t) t.term.focus(); });
+  send({ type: 'ready' });
+})();
+</script>
+</body>
+</html>
