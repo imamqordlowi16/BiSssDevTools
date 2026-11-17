@@ -14,7 +14,10 @@ if (-not $admin) { Write-Host "[BERHENTI] Harus dijalankan sebagai Administrator
 
 $wifi = Get-NetAdapter -Physical | Where-Object { $_.Status -eq 'Up' -and $_.InterfaceDescription -match 'Wireless|Wi-Fi|WLAN' } | Select-Object -First 1
 if (-not $wifi) { Write-Host "[BERHENTI] Wi-Fi tidak tersambung." -ForegroundColor Red; Stop-Transcript | Out-Null; exit 1 }
-$ssid = (Get-NetConnectionProfile -InterfaceIndex $wifi.InterfaceIndex).Name
+# SSID dari netsh (BUKAN Get-NetConnectionProfile.Name - itu nama profil jaringan Windows,
+# bisa "WLAN-NON-CORP 4", sehingga -HanyaJikaCaptive dulu salah LEWAT).
+$ssid = ((netsh wlan show interfaces 2>$null) | Where-Object { $_ -match '^\s*SSID\s*:\s*(.+)$' } | Select-Object -First 1) -replace '^\s*SSID\s*:\s*', ''
+$ssid = if ($ssid) { $ssid.Trim() } else { (Get-NetConnectionProfile -InterfaceIndex $wifi.InterfaceIndex).Name }
 $wifiGw = (Get-NetRoute -InterfaceIndex $wifi.InterfaceIndex -DestinationPrefix '0.0.0.0/0' -AddressFamily IPv4 | Sort-Object RouteMetric | Select-Object -First 1).NextHop
 $wifiIp = (Get-NetIPAddress -InterfaceIndex $wifi.InterfaceIndex -AddressFamily IPv4).IPAddress
 Write-Host "Wi-Fi: $($wifi.Name) ($ssid)  IP=$wifiIp  GW=$wifiGw"
