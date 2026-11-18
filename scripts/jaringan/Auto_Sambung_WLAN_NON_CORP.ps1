@@ -88,6 +88,20 @@ Log "==== Auto-sambung $SsidNonCorp (pemicu: $Alasan; paksa pindah: $PaksaPindah
 $admin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
 if (-not $admin) { Selesai 'GAGAL' 'Harus dijalankan sebagai Administrator (task RunLevel Highest).' 'Red'; exit 1 }
 
+# ---------------------------------------------------------------- 0. omni (aTrust) aktif?
+# Kalau omni/aTrust sedang tersambung JANGAN sentuh Wi-Fi. Sangfor memutus Wi-Fi
+# tiap tunnel aktif ("disconnected by the driver") DAN mencegat semua TCP ke 10.x
+# apa pun tabel rutenya, jadi menyambung ulang cuma bikin Wi-Fi putus-nyambung
+# tanpa guna (akar masalah 2026-11-17). Diam sampai user memutus omni dari tray.
+# Dev/DB lewat WLAN-NON-CORP hanya mungkin saat omni OFF -> tombol "Mode Dev/DB".
+$atrustUp = Get-NetAdapter -ErrorAction SilentlyContinue | Where-Object {
+    $_.Status -eq 'Up' -and ($_.InterfaceDescription -match 'aTrust|Sangfor' -or $_.Name -match 'aTrust|Sangfor')
+} | Select-Object -First 1
+if ($atrustUp) {
+    Selesai 'LEWAT' "omni (aTrust) sedang aktif - auto-sambung WLAN-NON-CORP ditahan (Sangfor memutus Wi-Fi & mencegat 10.x selama omni nyala). Putus omni dari ikon aTrust untuk memakai Dev/DB lewat Wi-Fi." 'Yellow'
+    exit 0
+}
+
 # ---------------------------------------------------------------- fungsi bantu
 function Get-CurrentSsid {
     $out = netsh wlan show interfaces 2>$null

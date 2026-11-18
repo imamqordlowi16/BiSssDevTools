@@ -12,6 +12,23 @@ $Nrpt    = '.corp.bi.go.id'
 $admin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
 if (-not $admin) { Write-Host "[BERHENTI] Harus dijalankan sebagai Administrator." -ForegroundColor Red; Stop-Transcript | Out-Null; exit 1 }
 
+# -Hapus DULU, sebelum syarat Wi-Fi: harus bisa jalan walau Wi-Fi mati (mode
+# Timesheet/omni). Aturan NRPT .corp.bi.go.id yang tertinggal mengarahkan semua
+# nama *.corp.bi.go.id ke DNS corp yang cuma hidup lewat Wi-Fi -> saat Wi-Fi mati
+# web BI gagal di-resolve. Rute /32 basi lewat gateway Wi-Fi lama (10.149.x) ikut
+# dibuang. Tidak bergantung pada Wi-Fi tersambung / gateway sekarang.
+if ($Hapus) {
+    $nrpt = @(Get-DnsClientNrptRule | Where-Object { $_.Namespace -eq $Nrpt })
+    if ($nrpt) { $nrpt | Remove-DnsClientNrptRule -Force; Write-Host "[OK] $($nrpt.Count) aturan NRPT $Nrpt dicabut." -ForegroundColor Green }
+    else { Write-Host "[LEWAT] Tidak ada aturan NRPT $Nrpt." -ForegroundColor Green }
+    $r32 = @(Get-NetRoute -AddressFamily IPv4 -ErrorAction SilentlyContinue | Where-Object { $_.DestinationPrefix -match '/32$' -and $_.NextHop -like '10.149.*' })
+    if ($r32) { $r32 | Remove-NetRoute -Confirm:$false; Write-Host "[OK] $($r32.Count) rute /32 via gateway Wi-Fi lama (10.149.x) dicabut." -ForegroundColor Green }
+    else { Write-Host "[LEWAT] Tidak ada rute /32 via 10.149.x." -ForegroundColor Green }
+    ipconfig /flushdns | Out-Null
+    Write-Host "[OK] Aturan ISE via Wi-Fi dibersihkan." -ForegroundColor Green
+    Stop-Transcript | Out-Null; exit 0
+}
+
 $wifi = Get-NetAdapter -Physical | Where-Object { $_.Status -eq 'Up' -and $_.InterfaceDescription -match 'Wireless|Wi-Fi|WLAN' } | Select-Object -First 1
 if (-not $wifi) { Write-Host "[BERHENTI] Wi-Fi tidak tersambung." -ForegroundColor Red; Stop-Transcript | Out-Null; exit 1 }
 # SSID dari netsh (BUKAN Get-NetConnectionProfile.Name - itu nama profil jaringan Windows,
@@ -29,12 +46,7 @@ if ($HanyaJikaCaptive) {
     Write-Host "WLAN-NON-CORP masih di captive portal ISE -> buka portal lewat Wi-Fi." -ForegroundColor Yellow
 }
 
-if ($Hapus) {
-    Get-DnsClientNrptRule | Where-Object { $_.Namespace -eq $Nrpt } | Remove-DnsClientNrptRule -Force
-    Get-NetRoute -AddressFamily IPv4 | Where-Object { $_.DestinationPrefix -match '/32$' -and $_.NextHop -eq $wifiGw } | Remove-NetRoute -Confirm:$false
-    ipconfig /flushdns | Out-Null
-    Write-Host "[OK] Aturan NRPT dan rute /32 via Wi-Fi dicabut."; Stop-Transcript | Out-Null; exit 0
-}
+# (-Hapus sudah ditangani di atas, sebelum syarat Wi-Fi.)
 
 # 1. Buang rute basi yang next-hop-nya bukan gateway Wi-Fi sekarang (aktif + persisten)
 Write-Host "[1/4] Bersihkan rute basi ke 10.x via Wi-Fi ..."
