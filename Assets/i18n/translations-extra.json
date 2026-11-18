@@ -1,0 +1,6 @@
+{
+  "🤖 Auto (Mode Otomatis)": { "en": "🤖 Auto (Automatic Mode)", "jv": "🤖 Auto (Mode Otomatis)", "min": "🤖 Auto (Mode Otomatis)", "zh": "🤖 Auto（自动模式）", "ja": "🤖 Auto（自動モード）" },
+  "Mode auto Claude Code: aksi aman dijalankan otomatis, yang berisiko tetap ditanyakan": { "en": "Claude Code auto mode: safe actions run automatically, risky ones are still asked", "jv": "Mode auto Claude Code: aksi aman mlaku otomatis, sing beresiko tetep ditakokake", "min": "Mode auto Claude Code: aksi aman dijalankan otomatis, nan barisiko tetap ditanyoan", "zh": "Claude Code 自动模式：安全操作自动执行，有风险的仍会询问", "ja": "Claude Code の自動モード：安全な操作は自動実行、危険な操作は確認します" },
+  "📋 Plan (Rencana Dulu)": { "en": "📋 Plan (Plan First)", "jv": "📋 Plan (Rencana Dhisik)", "min": "📋 Plan (Rencana Dulu)", "zh": "📋 Plan（先做计划）", "ja": "📋 Plan（先に計画）" },
+  "Mode plan: Claude menyusun rencana dulu tanpa mengubah file": { "en": "Plan mode: Claude drafts a plan first without changing files", "jv": "Mode plan: Claude nyusun rencana dhisik tanpa ngowahi file", "min": "Mode plan: Claude manyusun rencana dulu tanpa maubah file", "zh": "计划模式：Claude 先制定计划，不修改文件", "ja": "プランモード：Claude はファイルを変更せずに先に計画を立てます" }
+}
