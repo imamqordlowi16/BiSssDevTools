@@ -226,6 +226,16 @@
         case 'clear': t.term.clear(); break;
         case 'reset': t.term.reset(); t.tabEl.classList.remove('dead'); break;
         case 'focus': activate(t.id, false); break;
+        // Ctrl+Tab / Ctrl+Shift+Tab dari luar xterm (kotak prompt, tombol, dll.):
+        // pindah tab mengikuti urutan strip, lalu kabari host (activate notifyHost).
+        case 'cycle': {
+          const ids = [...tabs.keys()];
+          if (ids.length > 1) {
+            const i = Math.max(0, ids.indexOf(activeId));
+            activate(ids[(i + (m.dir < 0 ? ids.length - 1 : 1)) % ids.length], true);
+          }
+          break;
+        }
         case 'title': t.labelEl.textContent = m.title; t.tabEl.title = m.title; break;
         case 'busy': t.tabEl.classList.toggle('busy', !!m.busy); break;
         case 'working': t.tabEl.classList.toggle('working', !!m.working); break;

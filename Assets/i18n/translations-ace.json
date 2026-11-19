@@ -1,0 +1,1298 @@
+{
+    "(Bisa disesuaikan jika ingin push ke branch berbeda)":  {
+                                                                 "ace":  "(Jeut gantoe meunyoe neuneuk push u branch laen)"
+                                                             },
+    "(Ditarik ke branch aktif tiap repo)":  {
+                                                "ace":  "(Geucok u branch aktif tiep repo)"
+                                            },
+    "(Pilih dari dropdown atau ketik username GitHub)":  {
+                                                             "ace":  "(Pileh nibak dropdown atawa tulèh username GitHub)"
+                                                         },
+    "(Tersimpan otomatis per-repo)":  {
+                                          "ace":  "(Teukeubah otomatis tiep repo)"
+                                      },
+    "(bukan git repo / gak ketemu)":  {
+                                          "ace":  "(kon git repo / hana meurumpok)"
+                                      },
+    "(kosong)":  {
+                     "ace":  "(soh)"
+                 },
+    "(tidak terdeteksi)":  {
+                               "ace":  "(hana teudeteksi)"
+                           },
+    "-- Pilih Preset Lingkungan Database --":  {
+                                                   "ace":  "-- Pileh Preset Lingkungan Database --"
+                                               },
+    "0 file dipilih":  {
+                           "ace":  "0 file teupileh"
+                       },
+    "2. Terapkan Preset Lingkungan":  {
+                                          "ace":  "2. Peuguna Preset Lingkungan"
+                                      },
+    "3. Cari \u0026 Ganti Teks (Find \u0026 Replace)":  {
+                                                            "ace":  "3. Mita \u0026 Gantoe Teks (Find \u0026 Replace)"
+                                                        },
+    "Ada Dockerfile":  {
+                           "ace":  "Na Dockerfile"
+                       },
+    "Ada Folder Migrations":  {
+                                  "ace":  "Na Folder Migrations"
+                              },
+    "Aksi":  {
+                 "ace":  "Buet"
+             },
+    "Aksi Git":  {
+                     "ace":  "Buet Git"
+                 },
+    "Akun:":  {
+                  "ace":  "Akun:"
+              },
+    "Ambil gambar/teks terbaru dari clipboard (Ctrl+V)":  {
+                                                              "ace":  "Cok gamba/teks barô nibak clipboard (Ctrl+V)"
+                                                          },
+    "Analisa mendalam dengan extended thinking":  {
+                                                      "ace":  "Analisa dalam ngon extended thinking"
+                                                  },
+    "Aturan Proyek (CLAUDE.md) - ZeenIQ AI Studio":  {
+                                                         "ace":  "Atôran Proyek (CLAUDE.md) - ZeenIQ AI Studio"
+                                                     },
+    "Auto-sambung: belum dicek":  {
+                                      "ace":  "Auto-sambông: goh lom dicek"
+                                  },
+    "Bahasa Tampilan":  {
+                            "ace":  "Bahsa Tampilan"
+                        },
+    "Baris":  {
+                  "ace":  "Baréh"
+              },
+    "Batal":  {
+                  "ace":  "Batai"
+              },
+    "Batch Ganti Connection String (Multi-Microservice)":  {
+                                                               "ace":  "Gantoe Connection String Sigo (Multi-Microservice)"
+                                                           },
+    "Batch Ganti Connection String - ZeenIQ":  {
+                                                   "ace":  "Gantoe Connection String Sigo - ZeenIQ"
+                                               },
+    "Belum ada Claude yang berjalan.":  {
+                                            "ace":  "Goh lom na Claude nyang teungoh jak."
+                                        },
+    "Belum ada file yang diubah.":  {
+                                        "ace":  "Goh lom na file nyang geugantoe."
+                                    },
+    "Beralih / checkout ke branch yang dipilih":  {
+                                                      "ace":  "Pinah / checkout u branch nyang teupileh"
+                                                  },
+    "Beralih branch pada repositori ini":  {
+                                               "ace":  "Pinah branch bak repositori nyoe"
+                                           },
+    "Berjalan... 00:00":  {
+                              "ace":  "Teungoh jak... 00:00"
+                          },
+    "Branch (Opsional):":  {
+                               "ace":  "Branch (Meunyoe perlèe):"
+                           },
+    "Branch Aktif":  {
+                         "ace":  "Branch Aktif"
+                     },
+    "Branch Aktif Saat Ini:":  {
+                                   "ace":  "Branch Aktif Jinoe:"
+                               },
+    "Branch Sumber:":  {
+                           "ace":  "Branch Sumber:"
+                       },
+    "Branch aktif repo ini (tujuan pull)":  {
+                                                "ace":  "Branch aktif repo nyoe (tujuan pull)"
+                                            },
+    "Branch tujuan baru di remote yang akan digabungkan":  {
+                                                               "ace":  "Branch tujuan barô bak remote nyang akan geugabông"
+                                                           },
+    "Build \u0026 Restart berjalan...":  {
+                                             "ace":  "Build \u0026 Restart teungoh jak..."
+                                         },
+    "Build gagal - app ini TETAP jalan normal.":  {
+                                                      "ace":  "Build gagai - app nyoe TETAP jak biasa."
+                                                  },
+    "Build, publish, pull, commit, push, dll. yang berhasil":  {
+                                                                   "ace":  "Build, publish, pull, commit, push, ngon laen nyang meuhase"
+                                                               },
+    "Buka":  {
+                 "ace":  "Peuhah"
+             },
+    "Buka Kunci Publish":  {
+                               "ace":  "Peuhah Kunci Publish"
+                           },
+    "Buka file ini di VS Code (atau aplikasi default)":  {
+                                                             "ace":  "Peuhah file nyoe bak VS Code (atawa aplikasi default)"
+                                                         },
+    "Captive portal ISE: belum dicek":  {
+                                            "ace":  "Captive portal ISE: goh lom dicek"
+                                        },
+    "Cari Kata Kunci:":  {
+                             "ace":  "Mita Haba Kunci:"
+                         },
+    "Cari Teks (Misal: 127.0.0.1 atau zeeniq-sqlserver):":  {
+                                                                "ace":  "Mita Teks (Contoh: 127.0.0.1 atawa zeeniq-sqlserver):"
+                                                            },
+    "Cari:":  {
+                  "ace":  "Mita:"
+              },
+    "Centang repo \u0026 sesuaikan branch sumber per-repo:":  {
+                                                                  "ace":  "Centang repo \u0026 atô branch sumber tiep repo:"
+                                                              },
+    "Centang repo yang ingin ditampilkan:":  {
+                                                 "ace":  "Centang repo nyang neuneuk peuleumah:"
+                                             },
+    "Chat ID:":  {
+                     "ace":  "Chat ID:"
+                 },
+    "Ciutkan / lebarkan menu samping (Ctrl+B)":  {
+                                                     "ace":  "Peuubiet / peuluwah menu sisi (Ctrl+B)"
+                                                 },
+    "Ciutkan menu samping jadi ikon saja (Ctrl+B)":  {
+                                                         "ace":  "Peuubiet menu sisi jeuet ikon mantong (Ctrl+B)"
+                                                     },
+    "Claude selesai menjawab (tab terminal \u0026 AI Studio)":  {
+                                                                    "ace":  "Claude ka lheuh jawab (tab terminal \u0026 AI Studio)"
+                                                                },
+    "Command Palette - tekan Ctrl+K atau F1":  {
+                                                   "ace":  "Command Palette - teugon Ctrl+K atawa F1"
+                                               },
+    "Commit, Push \u0026 Pull Request (Dinamis)":  {
+                                                       "ace":  "Commit, Push \u0026 Pull Request (Dinamis)"
+                                                   },
+    "Container Name":  {
+                           "ace":  "Nan Container"
+                       },
+    "Container Registry URL (untuk Alur 2):":  {
+                                                   "ace":  "URL Container Registry (keu Alur 2):"
+                                               },
+    "Cuplikan Baris Kode":  {
+                                "ace":  "Cuplikan Baréh Kode"
+                            },
+    "Current":  {
+                    "ace":  "Jinoe"
+                },
+    "Daftar Container Docker yang sedang aktif:":  {
+                                                       "ace":  "Daftar Container Docker nyang teungoh aktif:"
+                                                   },
+    "Daftar Port Terpakai - IIS \u0026 Service Lokal":  {
+                                                            "ace":  "Daftar Port Teupakè - IIS \u0026 Service Lokal"
+                                                        },
+    "Default (Ikut CLI)":  {
+                               "ace":  "Default (Seutot CLI)"
+                           },
+    "Deploy ke Network Patch Share (Opsional)":  {
+                                                     "ace":  "Deploy u Network Patch Share (Meunyoe perlèe)"
+                                                 },
+    "Deteksi port dari source repo atau cari port bebas":  {
+                                                               "ace":  "Deteksi port nibak source repo atawa mita port soh"
+                                                           },
+    "Developer Workspace \u0026 AI Studio":  {
+                                                 "ace":  "Developer Workspace \u0026 AI Studio"
+                                             },
+    "Dikte pesan via mikrofon":  {
+                                     "ace":  "Dikte peusan ngon mikrofon"
+                                 },
+    "Direktori Target di Server:":  {
+                                        "ace":  "Direktori Target bak Server:"
+                                    },
+    "Docker Engine: Mengecek status...":  {
+                                              "ace":  "Docker Engine: Teungoh cek status..."
+                                          },
+    "Edit Connection String - ZeenIQ":  {
+                                            "ace":  "Edit Connection String - ZeenIQ"
+                                        },
+    "Edit Site IIS":  {
+                          "ace":  "Edit Site IIS"
+                      },
+    "Effort:":  {
+                    "ace":  "Effort:"
+                },
+    "Ekstensi:":  {
+                      "ace":  "Ekstensi:"
+                  },
+    "Enter = Kirim · Shift+Enter = Baris Baru":  {
+                                                     "ace":  "Enter = Kirèm · Shift+Enter = Baréh Barô"
+                                                 },
+    "Export Percakapan Sesi Claude Code":  {
+                                               "ace":  "Ekspor Haba Sesi Claude Code"
+                                           },
+    "Export Profil Workspace ZeenIQ":  {
+                                           "ace":  "Ekspor Profil Workspace ZeenIQ"
+                                       },
+    "Folder Kerja:":  {
+                          "ace":  "Folder Kerja:"
+                      },
+    "Folder Output Build (Lokal)":  {
+                                        "ace":  "Folder Output Build (Lokal)"
+                                    },
+    "Folder Root Repositori (Workspace Source)":  {
+                                                      "ace":  "Folder Root Repositori (Workspace Source)"
+                                                  },
+    "Folder Simpan:":  {
+                           "ace":  "Folder Keubah:"
+                       },
+    "Folder skrip:":  {
+                          "ace":  "Folder skrip:"
+                      },
+    "Gagal mematikan proses.":  {
+                                    "ace":  "Gagai peumatée proses."
+                                },
+    "Ganti Branch:":  {
+                          "ace":  "Gantoe Branch:"
+                      },
+    "Ganti Dengan (Misal: 10.28.224.145):":  {
+                                                 "ace":  "Gantoe Ngon (Contoh: 10.28.224.145):"
+                                             },
+    "Geser untuk mengatur lebar panel aktivitas":  {
+                                                       "ace":  "Seret keu atô luwah panel aktivitas"
+                                                   },
+    "Gunakan Port Bebas":  {
+                               "ace":  "Pakè Port Soh"
+                           },
+    "Hapus Pilihan":  {
+                          "ace":  "Sampôh Pileh"
+                      },
+    "Header Bar, Tema \u0026 Command Palette":  {
+                                                    "ace":  "Header Bar, Tema \u0026 Command Palette"
+                                                },
+    "Header atas menyediakan akses kilat ke fitur global...":  {
+                                                                   "ace":  "Header ateuh jeut keu jalan bacut u fitur global..."
+                                                               },
+    "Height":  {
+                   "ace":  "Manyang"
+               },
+    "Ikuti edit terbaru":  {
+                               "ace":  "Seutot edit barô"
+                           },
+    "Import Profil Workspace ZeenIQ":  {
+                                           "ace":  "Impor Profil Workspace ZeenIQ"
+                                       },
+    "Incoming":  {
+                     "ace":  "Tamong"
+                 },
+    "Infrastruktur Sidecar Lokal (1-Click Dev Stack):":  {
+                                                             "ace":  "Infrastruktur Sidecar Lokal (1-Klik Dev Stack):"
+                                                         },
+    "Invalid JWT":  {
+                        "ace":  "JWT hana sah"
+                    },
+    "Izin:":  {
+                  "ace":  "Idin:"
+              },
+    "Jalankan Claude dengan akun:":  {
+                                         "ace":  "Peujak Claude ngon akun:"
+                                     },
+    "Jalankan git fetch di seluruh repo secara paralel":  {
+                                                              "ace":  "Peujak git fetch bak mandum repo sigo"
+                                                          },
+    "Jalankan otomatis saat Windows login":  {
+                                                 "ace":  "Peujak otomatis watèe login Windows"
+                                             },
+    "Jalankan proses git clone ke folder tujuan":  {
+                                                       "ace":  "Peujak git clone u folder tujuan"
+                                                   },
+    "Jenis":  {
+                  "ace":  "Jeunèh"
+              },
+    "Juga pindah dari SSID lain bila WLAN-NON-CORP terlihat":  {
+                                                                   "ace":  "Pinah cit nibak SSID laen meunyoe WLAN-NON-CORP leumah"
+                                                               },
+    "Kategori":  {
+                     "ace":  "Kategori"
+                 },
+    "Kategori Cepat:":  {
+                            "ace":  "Kategori Bacut:"
+                        },
+    "Kategori Target Build":  {
+                                  "ace":  "Kategori Target Build"
+                              },
+    "Kelola Profil Remote Server - ZeenIQ":  {
+                                                 "ace":  "Atô Profil Remote Server - ZeenIQ"
+                                             },
+    "Kelola aturan koding \u0026 arsitektur proyek (CLAUDE.md)":  {
+                                                                      "ace":  "Atô atôran koding \u0026 arsitektur proyek (CLAUDE.md)"
+                                                                  },
+    "Kendalikan Docker di server langsung via SSH context.":  {
+                                                                  "ace":  "Kendali Docker bak server langsong ngon SSH context."
+                                                              },
+    "Keseimbangan antara kecepatan dan kedalaman analisa":  {
+                                                                "ace":  "Seimbang antara deuh ngon dalam analisa"
+                                                            },
+    "Keterangan / Path":  {
+                              "ace":  "Keterangan / Path"
+                          },
+    "Kirim isi log terkini ke Claude untuk dianalisis":  {
+                                                             "ace":  "Kirèm log barô u Claude keu dianalisa"
+                                                         },
+    "Klik \u0027Test Koneksi SSH\u0027 untuk memverifikasi.":  {
+                                                                   "ace":  "Klik \u0027Test Koneksi SSH\u0027 keu cek."
+                                                               },
+    "Klik atau tekan tombol apa saja untuk lewati":  {
+                                                         "ace":  "Klik atawa teugon tombol peue mantong keu lewat"
+                                                     },
+    "Klik baris untuk memilih repo:":  {
+                                           "ace":  "Klik baréh keu pileh repo:"
+                                       },
+    "Kosongkan tampilan terminal (riwayat scroll)":  {
+                                                         "ace":  "Peusoh tampilan terminal (riwayat scroll)"
+                                                     },
+    "Langkah 1 dari 10":  {
+                              "ace":  "Langkah 1 nibak 10"
+                          },
+    "Lanjut ⏭️":  {
+                      "ace":  "Lanjôt ⏭️"
+                  },
+    "Lebarkan menu samping (Ctrl+B)":  {
+                                           "ace":  "Peuluwah menu sisi (Ctrl+B)"
+                                       },
+    "Lihat perubahan baris kode yang belum di-commit":  {
+                                                            "ace":  "Kalon parobahan baréh kode nyang goh lom di-commit"
+                                                        },
+    "Log dibersihkan.":  {
+                             "ace":  "Log ka geupeugleh."
+                         },
+    "Logout dari akun provider yang sedang aktif":  {
+                                                        "ace":  "Logout nibak akun provider nyang teungoh aktif"
+                                                    },
+    "Lokasi: C:\\Project\\CLAUDE.md":  {
+                                           "ace":  "Teumpat: C:\\Project\\CLAUDE.md"
+                                       },
+    "Masukkan nomor port (misal: 5000, 5001, 8080)":  {
+                                                          "ace":  "Tamong nomor port (contoh: 5000, 5001, 8080)"
+                                                      },
+    "Match Case":  {
+                       "ace":  "Peusaban Huruf"
+                   },
+    "Memindai kesehatan sistem...":  {
+                                         "ace":  "Teungoh pindai keuseuhatan sistem..."
+                                     },
+    "Memindai status seluruh repositori Git...":  {
+                                                      "ace":  "Teungoh pindai status mandum repositori Git..."
+                                                  },
+    "Memuat info akun...":  {
+                                "ace":  "Teungoh muat info akun..."
+                            },
+    "Memuat port...":  {
+                           "ace":  "Teungoh muat port..."
+                       },
+    "Mendeteksi...":  {
+                          "ace":  "Teungoh deteksi..."
+                      },
+    "Mengecek status Docker Engine...":  {
+                                             "ace":  "Teungoh cek status Docker Engine..."
+                                         },
+    "Mengecek...":  {
+                        "ace":  "Teungoh cek..."
+                    },
+    "Menghubungi endpoint...":  {
+                                    "ace":  "Teungoh hubông endpoint..."
+                                },
+    "Menghubungi server via SSH...":  {
+                                          "ace":  "Teungoh hubông server ngon SSH..."
+                                      },
+    "Mengirim...":  {
+                        "ace":  "Teungoh kirèm..."
+                    },
+    "Menguji koneksi ke server database...":  {
+                                                  "ace":  "Teungoh uji koneksi u server database..."
+                                              },
+    "Menguji koneksi...":  {
+                               "ace":  "Teungoh uji koneksi..."
+                           },
+    "Metode Autentikasi:":  {
+                                "ace":  "Metode Autentikasi:"
+                            },
+    "Metode Deploy Default:":  {
+                                   "ace":  "Metode Deploy Default:"
+                               },
+    "Microservices (Semua)":  {
+                                  "ace":  "Microservices (Mandum)"
+                              },
+    "Minimize ke System Tray saat ditutup / di-minimize":  {
+                                                               "ace":  "Minimize u System Tray watèe geutôp / di-minimize"
+                                                           },
+    "Mode aman standar, meminta izin untuk aksi berisiko":  {
+                                                                "ace":  "Mode aman biasa, lakèe idin keu buet nyang beuhaya"
+                                                            },
+    "Mode:":  {
+                  "ace":  "Mode:"
+              },
+    "Model:":  {
+                   "ace":  "Model:"
+               },
+    "Muat ulang daftar PR yang terbuka di repo ini":  {
+                                                          "ace":  "Muat lom daftar PR nyang teuhah bak repo nyoe"
+                                                      },
+    "Mulai Sejak":  {
+                        "ace":  "Phôn Nibak"
+                    },
+    "Mulai tur interaktif pengenalan fitur aplikasi":  {
+                                                           "ace":  "Phôn tur interaktif keu kenai fitur aplikasi"
+                                                       },
+    "Naikkan urutan":  {
+                           "ace":  "Peuék urutan"
+                       },
+    "Nama Database:":  {
+                           "ace":  "Nan Database:"
+                       },
+    "Nama Profil:":  {
+                         "ace":  "Nan Profil:"
+                     },
+    "Nama Proses":  {
+                        "ace":  "Nan Proses"
+                    },
+    "Nama Site / Proses":  {
+                               "ace":  "Nan Site / Proses"
+                           },
+    "Nama Site:":  {
+                       "ace":  "Nan Site:"
+                   },
+    "Nama remote git (default: origin)":  {
+                                              "ace":  "Nan remote git (default: origin)"
+                                          },
+    "Nama remote git sumber pull (default: origin)":  {
+                                                          "ace":  "Nan remote git sumber pull (default: origin)"
+                                                      },
+    "Nilai / Connection String":  {
+                                      "ace":  "Nilai / Connection String"
+                                  },
+    "Nilai Saat Ini":  {
+                           "ace":  "Nilai Jinoe"
+                       },
+    "Nomor / URL PR:":  {
+                            "ace":  "Nomor / URL PR:"
+                        },
+    "Otomatis assign PR ke akun GitHub Anda (@me)":  {
+                                                         "ace":  "Otomatis assign PR u akun GitHub droeneuh (@me)"
+                                                     },
+    "Otomatis izinkan semua tool/perintah tanpa konfirmasi":  {
+                                                                  "ace":  "Otomatis bri idin mandum tool/perintah hana konfirmasi"
+                                                              },
+    "Otomatis mengizinkan pembuatan \u0026 pengeditan file":  {
+                                                                  "ace":  "Otomatis bri idin peugot \u0026 edit file"
+                                                              },
+    "PIN salah, coba lagi.":  {
+                                  "ace":  "PIN salah, cuba lom."
+                              },
+    "Password SSH (Opsional):":  {
+                                     "ace":  "Password SSH (Meunyoe perlèe):"
+                                 },
+    "Peran":  {
+                  "ace":  "Peran"
+              },
+    "Perbarui status login \u0026 kuota":  {
+                                               "ace":  "Peubarô status login \u0026 kuota"
+                                           },
+    "Percakapan baru - siap.":  {
+                                    "ace":  "Haba barô - ka siap."
+                                },
+    "Pilih .csproj...":  {
+                             "ace":  "Pileh .csproj..."
+                         },
+    "Pilih Alur Deployment ke Server:":  {
+                                             "ace":  "Pileh Alur Deployment u Server:"
+                                         },
+    "Pilih Claude \u0026 buka terminal login akun Claude":  {
+                                                                "ace":  "Pileh Claude \u0026 peuhah terminal login akun Claude"
+                                                            },
+    "Pilih Current":  {
+                          "ace":  "Pileh Current"
+                      },
+    "Pilih File Log:":  {
+                            "ace":  "Pileh File Log:"
+                        },
+    "Pilih Folder...":  {
+                            "ace":  "Pileh Folder..."
+                        },
+    "Pilih Incoming":  {
+                           "ace":  "Pileh Incoming"
+                       },
+    "Pilih PR:":  {
+                      "ace":  "Pileh PR:"
+                  },
+    "Pilih Semua":  {
+                        "ace":  "Pileh Mandum"
+                    },
+    "Pilih Tema Tampilan (Live Dynamic Switch)":  {
+                                                      "ace":  "Pileh Tema Tampilan (Live Dynamic Switch)"
+                                                  },
+    "Pilih file .csproj buat Publish site ini":  {
+                                                     "ace":  "Pileh file .csproj keu Publish site nyoe"
+                                                 },
+    "Pilih file buat dilampirkan ke prompt":  {
+                                                  "ace":  "Pileh file keu geulampir u prompt"
+                                              },
+    "Pilih file suara notifikasi":  {
+                                        "ace":  "Pileh file su notifikasi"
+                                    },
+    "Pilih file/gambar dari komputer (Ctrl+O)":  {
+                                                     "ace":  "Pileh file/gamba nibak komputer (Ctrl+O)"
+                                                 },
+    "Pilih folder buat nyimpen hasil build+zip":  {
+                                                      "ace":  "Pileh folder keu keubah hase build+zip"
+                                                  },
+    "Pilih folder buat site IIS ini":  {
+                                           "ace":  "Pileh folder keu site IIS nyoe"
+                                       },
+    "Pilih folder kerja buat Claude Code":  {
+                                                "ace":  "Pileh folder kerja keu Claude Code"
+                                            },
+    "Pilih folder tujuan git clone":  {
+                                          "ace":  "Pileh folder tujuan git clone"
+                                      },
+    "Pilih folder workspace tempat repositori berada":  {
+                                                            "ace":  "Pileh folder workspace teumpat repositori"
+                                                        },
+    "Pilih sesi lama untuk dilanjutkan":  {
+                                              "ace":  "Pileh sesi awai keu geulanjôt"
+                                          },
+    "Port Populer:":  {
+                          "ace":  "Port Meuteumee:"
+                      },
+    "Port harus angka 1-65535":  {
+                                     "ace":  "Port beuh angka 1-65535"
+                                 },
+    "Port harus berupa angka antara 1 dan 65535.":  {
+                                                        "ace":  "Port beuh angka antara 1 ngon 65535."
+                                                    },
+    "Prasyarat IIS":  {
+                          "ace":  "Prasyarat IIS"
+                      },
+    "Pratinjau Nilai Baru":  {
+                                 "ace":  "Kalon Nilai Barô"
+                             },
+    "Preset Layanan Populer:":  {
+                                    "ace":  "Preset Layanan Meuteumee:"
+                                },
+    "Profil Konfigurasi Workspace (.zeeniq.json)":  {
+                                                        "ace":  "Profil Konfigurasi Workspace (.zeeniq.json)"
+                                                    },
+    "Proses":  {
+                   "ace":  "Proses"
+               },
+    "Proses yang gagal / error":  {
+                                      "ace":  "Proses nyang gagai / error"
+                                  },
+    "Publish Kode ke IIS":  {
+                                "ace":  "Publish Kode u IIS"
+                            },
+    "Pull dulu sebelum push":  {
+                                   "ace":  "Pull dilèe sigohlom push"
+                               },
+    "Pusat navigasi cepat \u0026 kustomisasi antarmuka":  {
+                                                              "ace":  "Pusat navigasi bacut \u0026 atô tampilan"
+                                                          },
+    "Putar suara saat notifikasi muncul":  {
+                                               "ace":  "Peujak su watèe notifikasi teubiet"
+                                           },
+    "Release Notes berhasil dibuat.":  {
+                                           "ace":  "Release Notes ka meuhase geupeugot."
+                                       },
+    "Repositori":  {
+                       "ace":  "Repositori"
+                   },
+    "Repositori / Service":  {
+                                 "ace":  "Repositori / Service"
+                             },
+    "Repositori:":  {
+                        "ace":  "Repositori:"
+                    },
+    "Respon super cepat tanpa jeda reasoning yang lama":  {
+                                                              "ace":  "Jaweub deuh that hana preh reasoning panyang"
+                                                          },
+    "Riwayat:":  {
+                     "ace":  "Riwayat:"
+                 },
+    "Rute persisten: belum dicek":  {
+                                        "ace":  "Rute persisten: goh lom dicek"
+                                    },
+    "Salin teks jawaban terakhir Claude ke clipboard":  {
+                                                            "ace":  "Salin teks jaweub keuneulheuh Claude u clipboard"
+                                                        },
+    "Selesaikan Konflik Merge":  {
+                                     "ace":  "Peulheuh Konflik Merge"
+                                 },
+    "Semua":  {
+                  "ace":  "Mandum"
+              },
+    "Server Staging (192.168.1.100)":  {
+                                           "ace":  "Server Staging (192.168.1.100)"
+                                       },
+    "Sesi baru (belum dikirim)":  {
+                                      "ace":  "Sesi barô (goh lom geukirèm)"
+                                  },
+    "Sesi baru - siap.":  {
+                              "ace":  "Sesi barô - ka siap."
+                          },
+    "Set semua jadi:":  {
+                            "ace":  "Set mandum jeuet:"
+                        },
+    "Set sumber pull ke dev-temp":  {
+                                        "ace":  "Set sumber pull u dev-temp"
+                                    },
+    "Set sumber pull ke main":  {
+                                    "ace":  "Set sumber pull u main"
+                                },
+    "Set sumber pull ke staging":  {
+                                       "ace":  "Set sumber pull u staging"
+                                   },
+    "Set sumber pull repo ini ke dev-temp":  {
+                                                 "ace":  "Set sumber pull repo nyoe u dev-temp"
+                                             },
+    "Set sumber pull repo ini ke main":  {
+                                             "ace":  "Set sumber pull repo nyoe u main"
+                                         },
+    "Set sumber pull repo ini ke staging":  {
+                                                "ace":  "Set sumber pull repo nyoe u staging"
+                                            },
+    "Siap menguji koneksi target server.":  {
+                                                "ace":  "Ka siap uji koneksi server target."
+                                            },
+    "Siap menguji koneksi.":  {
+                                  "ace":  "Ka siap uji koneksi."
+                              },
+    "Siap.":  {
+                  "ace":  "Ka siap."
+              },
+    "Simpan (Run as Administrator)":  {
+                                          "ace":  "Keubah (Run as Administrator)"
+                                      },
+    "Simpan perubahan saat ini ke stash":  {
+                                               "ace":  "Keubah parobahan jinoe u stash"
+                                           },
+    "Simpan seluruh percakapan sesi ke file Markdown (.md)":  {
+                                                                  "ace":  "Keubah mandum haba sesi u file Markdown (.md)"
+                                                              },
+    "Sinkronisasi \u0026 Pull Multi-Repo (Dinamis)":  {
+                                                          "ace":  "Sinkronisasi \u0026 Pull Multi-Repo (Dinamis)"
+                                                      },
+    "Sisipkan perubahan kode Git (Git Diff) ke dalam prompt":  {
+                                                                   "ace":  "Peutamong parobahan kode Git (Git Diff) u lam prompt"
+                                                               },
+    "Site Ekstra (Universal IIS)":  {
+                                        "ace":  "Site Tamah (Universal IIS)"
+                                    },
+    "Site IIS Terdaftar (Publish \u0026 Kontrol)":  {
+                                                        "ace":  "Site IIS Teudaftar (Publish \u0026 Kontrol)"
+                                                    },
+    "Site Name:":  {
+                       "ace":  "Nan Site:"
+                   },
+    "Status: -":  {
+                      "ace":  "Status: -"
+                  },
+    "Status: Mengirim request...":  {
+                                        "ace":  "Status: Teungoh kirèm request..."
+                                    },
+    "Suara Notifikasi":  {
+                             "ace":  "Su Notifikasi"
+                         },
+    "TCP Aktif":  {
+                      "ace":  "TCP Aktif"
+                  },
+    "Tambah Site IIS Baru":  {
+                                 "ace":  "Tamah Site IIS Barô"
+                             },
+    "Tambah akun Claude baru (lalu login)":  {
+                                                 "ace":  "Tamah akun Claude barô (lheuh nyan login)"
+                                             },
+    "Target Base Baru:":  {
+                              "ace":  "Target Base Barô:"
+                          },
+    "Target Base Saat Ini:":  {
+                                  "ace":  "Target Base Jinoe:"
+                              },
+    "Template Cepat:":  {
+                            "ace":  "Template Bacut:"
+                        },
+    "Terapkan":  {
+                     "ace":  "Peuguna"
+                 },
+    "Terapkan kembali stash terakhir":  {
+                                            "ace":  "Peuguna lom stash keuneulheuh"
+                                        },
+    "Test":  {
+                 "ace":  "Uji"
+             },
+    "Tidak ada tab terminal.":  {
+                                    "ace":  "Hana tab terminal."
+                                },
+    "Token: Belum ada token":  {
+                                   "ace":  "Token: Goh lom na token"
+                               },
+    "Token: Belum ada token.":  {
+                                    "ace":  "Token: Goh lom na token."
+                                },
+    "Trigger endpoint webhook Portainer/Coolify di server.":  {
+                                                                  "ace":  "Peujak endpoint webhook Portainer/Coolify bak server."
+                                                              },
+    "Turunkan urutan":  {
+                            "ace":  "Peutrôn urutan"
+                        },
+    "Tutup":  {
+                  "ace":  "Tutôp"
+              },
+    "Tutup tur interaktif":  {
+                                 "ace":  "Tutôp tur interaktif"
+                             },
+    "URL portal ISE dibuka di browser.":  {
+                                              "ace":  "URL portal ISE ka geupeuhah bak browser."
+                                          },
+    "Ubah Target Base Branch Pull Request (PR)":  {
+                                                      "ace":  "Gantoe Target Base Branch Pull Request (PR)"
+                                                  },
+    "Ubah nilai konfigurasi ini langsung":  {
+                                                "ace":  "Gantoe nilai konfigurasi nyoe langsong"
+                                            },
+    "Uncentang Semua":  {
+                            "ace":  "Peusoh Mandum Centang"
+                        },
+    "Update Aplikasi (Pusat Distribusi)":  {
+                                               "ace":  "Update Aplikasi (Pusat Distribusi)"
+                                           },
+    "Versi Dipasang:":  {
+                            "ace":  "Versi Teupasang:"
+                        },
+    "Wi-Fi: belum dicek":  {
+                               "ace":  "Wi-Fi: goh lom dicek"
+                           },
+    "ZeenIQ Dev Tools — Panduan Penggunaan \u0026 Modul":  {
+                                                               "ace":  "ZeenIQ Dev Tools — Panduan Pakè \u0026 Modul"
+                                                           },
+    "dc1isepsn02: belum dicek":  {
+                                     "ace":  "dc1isepsn02: goh lom dicek"
+                                 },
+    "↗ Buka":  {
+                   "ace":  "↗ Peuhah"
+               },
+    "↩ Kembalikan Default":  {
+                                 "ace":  "↩ Peuriwang Default"
+                             },
+    "⏮️ Sebelumnya":  {
+                          "ace":  "⏮️ Sigohlom"
+                      },
+    "⏳ Memeriksa PR yang terbuka di GitHub...":  {
+                                                     "ace":  "⏳ Teungoh cek PR nyang teuhah bak GitHub..."
+                                                 },
+    "⏹ Batal":  {
+                    "ace":  "⏹ Batai"
+                },
+    "⏹ Berhenti":  {
+                       "ace":  "⏹ Piyôh"
+                   },
+    "⏹ Cabut Auto-sambung":  {
+                                 "ace":  "⏹ Cabut Auto-sambông"
+                             },
+    "⏹ Hentikan Stack (compose down)":  {
+                                            "ace":  "⏹ Piyôh Stack (compose down)"
+                                        },
+    "⏹ Matikan Proses (Kill)":  {
+                                    "ace":  "⏹ Peumatée Proses (Kill)"
+                                },
+    "⏹ Stop Suara":  {
+                         "ace":  "⏹ Piyôh Su"
+                     },
+    "▶ Aktifkan 3 Koneksi":  {
+                                 "ace":  "▶ Peuaktif 3 Koneksi"
+                             },
+    "▶ Jalankan di Lokal (docker compose up)":  {
+                                                    "ace":  "▶ Peujak bak Lokal (docker compose up)"
+                                                },
+    "▶ Tes":  {
+                  "ace":  "▶ Uji"
+              },
+    "▶ Uji Sekarang":  {
+                           "ace":  "▶ Uji Jinoe"
+                       },
+    "▶️ Kirim ke Terminal":  {
+                                 "ace":  "▶️ Kirèm u Terminal"
+                             },
+    "⚙ Pasang Auto-sambung":  {
+                                  "ace":  "⚙ Pasang Auto-sambông"
+                              },
+    "⚙ Pasang Ulang Auto-sambung":  {
+                                        "ace":  "⚙ Pasang Lom Auto-sambông"
+                                    },
+    "⚙ Token cadangan ▸":  {
+                               "ace":  "⚙ Token cadangan ▸"
+                           },
+    "⚙ Token cadangan ▾":  {
+                               "ace":  "⚙ Token cadangan ▾"
+                           },
+    "⚙️ Kelola Profil Server...":  {
+                                       "ace":  "⚙️ Atô Profil Server..."
+                                   },
+    "⚙️ Sembunyikan Toolbar":  {
+                                   "ace":  "⚙️ Peusom Toolbar"
+                               },
+    "⚙️ Tampilkan Toolbar":  {
+                                 "ace":  "⚙️ Peuleumah Toolbar"
+                             },
+    "⚡ /fix (Perbaiki Bug)":  {
+                                  "ace":  "⚡ /fix (Peugot Gèt Bug)"
+                              },
+    "⚡ Batch Ganti ConnString...":  {
+                                        "ace":  "⚡ Gantoe ConnString Sigo..."
+                                    },
+    "⚡ Fitur Global \u0026 Navigasi Cepat":  {
+                                                 "ace":  "⚡ Fitur Global \u0026 Navigasi Bacut"
+                                             },
+    "⚡ Jalankan Migrasi Terpilih":  {
+                                        "ace":  "⚡ Peujak Migrasi Teupileh"
+                                    },
+    "⚡ Kirim":  {
+                    "ace":  "⚡ Kirèm"
+                },
+    "⚡ Langkah terbaru":  {
+                              "ace":  "⚡ Langkah barô"
+                          },
+    "⚡ Low (Cepat)":  {
+                          "ace":  "⚡ Low (Deuh)"
+                      },
+    "⚡ Pasang Update Sekarang":  {
+                                     "ace":  "⚡ Pasang Update Jinoe"
+                                 },
+    "⚡ Prasyarat":  {
+                        "ace":  "⚡ Prasyarat"
+                    },
+    "⚡ Pusat Kendali":  {
+                            "ace":  "⚡ Pusat Kendali"
+                        },
+    "⚡ Samakan Sumber Terpilih":  {
+                                      "ace":  "⚡ Peusaban Sumber Teupileh"
+                                  },
+    "⚡ Terapkan Perubahan ke (0) File":  {
+                                             "ace":  "⚡ Peuguna Parobahan u (0) File"
+                                         },
+    "✅ Proses selesai":  {
+                             "ace":  "✅ Proses ka lheuh"
+                         },
+    "✏️ Ubah Target Base Branch PR":  {
+                                          "ace":  "✏️ Gantoe Target Base Branch PR"
+                                      },
+    "✓ Centang Semua":  {
+                            "ace":  "✓ Centang Mandum"
+                        },
+    "✓ Jawaban tersalin ke clipboard.":  {
+                                             "ace":  "✓ Jaweub ka teusalin u clipboard."
+                                         },
+    "✓ Tersimpan di CLAUDE.md":  {
+                                     "ace":  "✓ Ka teukeubah bak CLAUDE.md"
+                                 },
+    "✕ Lewati":  {
+                     "ace":  "✕ Lewat"
+                 },
+    "✕ Tutup":  {
+                    "ace":  "✕ Tutôp"
+                },
+    "✨ Analisis di AI":  {
+                             "ace":  "✨ Analisa ngon AI"
+                         },
+    "✨ Debug di AI":  {
+                          "ace":  "✨ Debug ngon AI"
+                      },
+    "✨ Jalankan Claude":  {
+                              "ace":  "✨ Peujak Claude"
+                          },
+    "✨ Sisipkan Template Standar":  {
+                                        "ace":  "✨ Peutamong Template Standar"
+                                    },
+    "✨ Solusi AI":  {
+                        "ace":  "✨ Solusi AI"
+                    },
+    "❌ Proses gagal":  {
+                           "ace":  "❌ Proses gagai"
+                       },
+    "➕ Buat Site IIS":  {
+                            "ace":  "➕ Peugot Site IIS"
+                        },
+    "➕ Sesi Baru":  {
+                        "ace":  "➕ Sesi Barô"
+                    },
+    "⬇️ Mulai Pull":  {
+                          "ace":  "⬇️ Phôn Pull"
+                      },
+    "⬇️ Pull Dinamis:":  {
+                             "ace":  "⬇️ Pull Dinamis:"
+                         },
+    "⬇️ Sumber Pull Default:":  {
+                                    "ace":  "⬇️ Sumber Pull Default:"
+                                },
+    "🌐 Bahasa":  {
+                      "ace":  "🌐 Bahsa"
+                  },
+    "🌐 Buka @BotFather di Telegram":  {
+                                           "ace":  "🌐 Peuhah @BotFather bak Telegram"
+                                       },
+    "🌐 Buka URL Portal Saja":  {
+                                    "ace":  "🌐 Peuhah URL Portal Mantong"
+                                },
+    "🌐 Buka di Browser":  {
+                               "ace":  "🌐 Peuhah bak Browser"
+                           },
+    "🌐 IIS Lokal":  {
+                         "ace":  "🌐 IIS Lokal"
+                     },
+    "🌐 Jaringan ▾":  {
+                          "ace":  "🌐 Jaringan ▾"
+                      },
+    "🌿 Beralih":  {
+                       "ace":  "🌿 Pinah"
+                   },
+    "🌿 Ganti Branch Terpilih...":  {
+                                        "ace":  "🌿 Gantoe Branch Teupileh..."
+                                    },
+    "🌿 Ganti Branch...":  {
+                               "ace":  "🌿 Gantoe Branch..."
+                           },
+    "🎉 Selesai Tour":  {
+                            "ace":  "🎉 Lheuh Tour"
+                        },
+    "🎤 Rekam":  {
+                     "ace":  "🎤 Rekam"
+                 },
+    "🎤 Suara":  {
+                     "ace":  "🎤 Su"
+                 },
+    "🎯 Mulai Tour Interaktif":  {
+                                     "ace":  "🎯 Phôn Tour Interaktif"
+                                 },
+    "👁️ Pilih Repo...":  {
+                              "ace":  "👁️ Pileh Repo..."
+                          },
+    "💡 /explain (Jelaskan Kode)":  {
+                                        "ace":  "💡 /explain (Peutrang Kode)"
+                                    },
+    "💡 Port akan otomatis dideteksi saat repo dipilih":  {
+                                                              "ace":  "💡 Port otomatis teudeteksi watèe repo teupileh"
+                                                          },
+    "💻 Buka di VS Code":  {
+                               "ace":  "💻 Peuhah bak VS Code"
+                           },
+    "💾 Export Profil...":  {
+                                "ace":  "💾 Ekspor Profil..."
+                            },
+    "💾 Simpan Perubahan":  {
+                                "ace":  "💾 Keubah Parobahan"
+                            },
+    "💾 Simpan Profil":  {
+                             "ace":  "💾 Keubah Profil"
+                         },
+    "💾 Simpan Versi":  {
+                            "ace":  "💾 Keubah Versi"
+                        },
+    "📁 Browse...":  {
+                         "ace":  "📁 Mita..."
+                     },
+    "📁 Buka di File Explorer":  {
+                                     "ace":  "📁 Peuhah bak File Explorer"
+                                 },
+    "📁 Ganti Folder...":  {
+                               "ace":  "📁 Gantoe Folder..."
+                           },
+    "📁 Pilih File...":  {
+                             "ace":  "📁 Pileh File..."
+                         },
+    "📁 Pilih Folder...":  {
+                               "ace":  "📁 Pileh Folder..."
+                           },
+    "📁 Pilih...":  {
+                        "ace":  "📁 Pileh..."
+                    },
+    "📂 Buka Folder":  {
+                           "ace":  "📂 Peuhah Folder"
+                       },
+    "📂 File yang diubah":  {
+                                "ace":  "📂 File nyang geugantoe"
+                            },
+    "📄 /docs (Dokumentasi)":  {
+                                   "ace":  "📄 /docs (Dokumentasi)"
+                               },
+    "📊 Aktivitas":  {
+                         "ace":  "📊 Aktivitas"
+                     },
+    "📊 Aktivitas Claude":  {
+                                "ace":  "📊 Aktivitas Claude"
+                            },
+    "📊 Sembunyikan Aktivitas":  {
+                                     "ace":  "📊 Peusom Aktivitas"
+                                 },
+    "📊 Tampilkan Aktivitas":  {
+                                   "ace":  "📊 Peuleumah Aktivitas"
+                               },
+    "📋 /plan (Rencana Kerja)":  {
+                                     "ace":  "📋 /plan (Rencana Buet)"
+                                 },
+    "📋 Paste":  {
+                     "ace":  "📋 Tempel"
+                 },
+    "📋 Rencana kerja":  {
+                             "ace":  "📋 Rencana buet"
+                         },
+    "📋 Salin Jawaban":  {
+                             "ace":  "📋 Salin Jaweub"
+                         },
+    "📋 Salin Port":  {
+                          "ace":  "📋 Salin Port"
+                      },
+    "📋 Semua":  {
+                     "ace":  "📋 Mandum"
+                 },
+    "📋 Tampilkan Semua":  {
+                               "ace":  "📋 Peuleumah Mandum"
+                           },
+    "📌 Fitur Unggulan:":  {
+                               "ace":  "📌 Fitur Unggulan:"
+                           },
+    "📌 Langkah Penggunaan:":  {
+                                   "ace":  "📌 Langkah Pakè:"
+                               },
+    "📌 Langkah Update:":  {
+                               "ace":  "📌 Langkah Update:"
+                           },
+    "📌 Panduan Modul \u0026 5 Alur Deployment:":  {
+                                                       "ace":  "📌 Panduan Modul \u0026 5 Alur Deployment:"
+                                                   },
+    "📎 Lampiran:":  {
+                         "ace":  "📎 Lampiran:"
+                     },
+    "📖 Panduan":  {
+                       "ace":  "📖 Panduan"
+                   },
+    "📜 Aturan Proyek (CLAUDE.md)":  {
+                                         "ace":  "📜 Atôran Proyek (CLAUDE.md)"
+                                     },
+    "📜 Buka Log Auto-sambung":  {
+                                     "ace":  "📜 Peuhah Log Auto-sambông"
+                                 },
+    "📝 /commit (Pesan Commit)":  {
+                                      "ace":  "📝 /commit (Peusan Commit)"
+                                  },
+    "📝 Buka di VS Code":  {
+                               "ace":  "📝 Peuhah bak VS Code"
+                           },
+    "📝 Generate Release Notes":  {
+                                      "ace":  "📝 Peugot Release Notes"
+                                  },
+    "📡 Jaringan 3 Koneksi":  {
+                                  "ace":  "📡 Jaringan 3 Koneksi"
+                              },
+    "📡 Status Jaringan (tanpa admin)":  {
+                                             "ace":  "📡 Status Jaringan (hana admin)"
+                                         },
+    "📥 Clone Repositori Git":  {
+                                    "ace":  "📥 Clone Repositori Git"
+                                },
+    "📥 Import Profil...":  {
+                                "ace":  "📥 Impor Profil..."
+                            },
+    "📥 Mulai Clone":  {
+                           "ace":  "📥 Phôn Clone"
+                       },
+    "📦 Publish yang Dicentang":  {
+                                      "ace":  "📦 Publish nyang Geucentang"
+                                  },
+    "📱 Akun \u0026 Telegram":  {
+                                    "ace":  "📱 Akun \u0026 Telegram"
+                                },
+    "📱 Notifikasi Telegram":  {
+                                   "ace":  "📱 Notifikasi Telegram"
+                               },
+    "📱 Token tab Telegram… (kosong)":  {
+                                            "ace":  "📱 Token tab Telegram… (soh)"
+                                        },
+    "📱 Token tab Telegram… (terisi)":  {
+                                            "ace":  "📱 Token tab Telegram… (ka meuisi)"
+                                        },
+    "🔀 Buat PR":  {
+                       "ace":  "🔀 Peugot PR"
+                   },
+    "🔀 PR Dinamis:":  {
+                           "ace":  "🔀 PR Dinamis:"
+                       },
+    "🔄 Cek Engine":  {
+                          "ace":  "🔄 Cek Engine"
+                      },
+    "🔄 Pindai Microservice":  {
+                                   "ace":  "🔄 Pindai Microservice"
+                               },
+    "🔄 Refresh / Cari Site":  {
+                                   "ace":  "🔄 Refresh / Mita Site"
+                               },
+    "🔊 Bacakan":  {
+                       "ace":  "🔊 Beuet"
+                   },
+    "🔌 Cek Port Terpakai":  {
+                                 "ace":  "🔌 Cek Port Teupakè"
+                             },
+    "🔌 Port Terpakai (IIS \u0026 Proses TCP Aktif)":  {
+                                                           "ace":  "🔌 Port Teupakè (IIS \u0026 Proses TCP Aktif)"
+                                                       },
+    "🔌 Test Koneksi Host":  {
+                                 "ace":  "🔌 Uji Koneksi Host"
+                             },
+    "🔌 Test Koneksi SSH":  {
+                                "ace":  "🔌 Uji Koneksi SSH"
+                            },
+    "🔌 Test Koneksi Server":  {
+                                   "ace":  "🔌 Uji Koneksi Server"
+                               },
+    "🔌 Test Koneksi Target":  {
+                                   "ace":  "🔌 Uji Koneksi Target"
+                               },
+    "🔍 Cari / Cek":  {
+                          "ace":  "🔍 Mita / Cek"
+                      },
+    "🔍 Cari Teks":  {
+                         "ace":  "🔍 Mita Teks"
+                     },
+    "🔍 Cek Pembaruan":  {
+                             "ace":  "🔍 Cek Update"
+                         },
+    "🔍 Cek Semua Prasyarat":  {
+                                   "ace":  "🔍 Cek Mandum Prasyarat"
+                               },
+    "🔍 Cek Status IIS":  {
+                              "ace":  "🔍 Cek Status IIS"
+                          },
+    "🔍 Detect":  {
+                      "ace":  "🔍 Deteksi"
+                  },
+    "🔍 Pindai Konfigurasi":  {
+                                  "ace":  "🔍 Pindai Konfigurasi"
+                              },
+    "🔍 Pindai Migration":  {
+                                "ace":  "🔍 Pindai Migration"
+                            },
+    "🔐 Buka Portal ISE via Wi-Fi":  {
+                                         "ace":  "🔐 Peuhah Portal ISE ngon Wi-Fi"
+                                     },
+    "🔒 Buka Kunci (PIN)":  {
+                                "ace":  "🔒 Peuhah Kunci (PIN)"
+                            },
+    "🔓 Terbuka":  {
+                       "ace":  "🔓 Ka Teuhah"
+                   },
+    "🔔 Notifikasi":  {
+                          "ace":  "🔔 Notifikasi"
+                      },
+    "🔕 Bawaan Windows (tanpa suara tambahan)":  {
+                                                     "ace":  "🔕 Bawaan Windows (hana su tamah)"
+                                                 },
+    "🔧 Perbaiki Otomatis (Fix All)":  {
+                                           "ace":  "🔧 Peugot Gèt Otomatis (Fix All)"
+                                       },
+    "🔴 Docker tidak ditemukan di sistem ini.":  {
+                                                     "ace":  "🔴 Docker hana meurumpok bak sistem nyoe."
+                                                 },
+    "🖥️ Buka di Windows Terminal":  {
+                                         "ace":  "🖥️ Peuhah bak Windows Terminal"
+                                     },
+    "🖥️ Sistem ▾":  {
+                         "ace":  "🖥️ Sistem ▾"
+                     },
+    "🗄️ Skema DB":  {
+                         "ace":  "🗄️ Skema DB"
+                     },
+    "🗑 Hapus Site":  {
+                          "ace":  "🗑 Sampôh Site"
+                      },
+    "🗑️ Bersihkan Log":  {
+                              "ace":  "🗑️ Peugleh Log"
+                          },
+    "🚀 Buka Docker Desktop":  {
+                                   "ace":  "🚀 Peuhah Docker Desktop"
+                               },
+    "🚀 Kirim Pesan":  {
+                           "ace":  "🚀 Kirèm Peusan"
+                       },
+    "🚀 Mulai Build Patch":  {
+                                 "ace":  "🚀 Phôn Build Patch"
+                             },
+    "🚀 Mulai Deploy ke Server Target":  {
+                                             "ace":  "🚀 Phôn Deploy u Server Target"
+                                         },
+    "🚀 Push Dinamis:":  {
+                             "ace":  "🚀 Push Dinamis:"
+                         },
+    "🚀 Ubah Target PR":  {
+                              "ace":  "🚀 Gantoe Target PR"
+                          },
+    "🛠️ Aturan Penggantian Massal":  {
+                                          "ace":  "🛠️ Atôran Gantoe Sigo"
+                                      },
+    "🛠️ Utilitas \u0026 Port":  {
+                                     "ace":  "🛠️ Utilitas \u0026 Port"
+                                 },
+    "🛡️ Default (Aman)":  {
+                               "ace":  "🛡️ Default (Aman)"
+                           },
+    "🤖 Claude selesai":  {
+                              "ace":  "🤖 Claude ka lheuh"
+                          },
+    "🧪 /test (Unit Test)":  {
+                                 "ace":  "🧪 /test (Unit Test)"
+                             },
+    "🧹 Bersihkan":  {
+                         "ace":  "🧹 Peugleh"
+                     },
+    "🧹 Bersihkan Cache .NET (bin/obj)":  {
+                                              "ace":  "🧹 Peugleh Cache .NET (bin/obj)"
+                                          },
+    "🧹 Cabut Aturan ISE":  {
+                                "ace":  "🧹 Cabut Atôran ISE"
+                            },
+    "🩺 Cek Respon / Health Semua API":  {
+                                             "ace":  "🩺 Cek Jaweub / Health Mandum API"
+                                         },
+    "🩺 Jalankan Doctor":  {
+                               "ace":  "🩺 Peujak Doctor"
+                           },
+    "＋ Tambah akun...":  {
+                             "ace":  "＋ Tamah akun..."
+                         },
+    "Notifikasi \u0026 Kendali Claude via Telegram":  {
+                                                          "ace":  "Notifikasi \u0026 Kendali Claude ngon Telegram"
+                                                      },
+    "📱 Aktifkan notifikasi Telegram":  {
+                                            "ace":  "📱 Peuaktif notifikasi Telegram"
+                                        },
+    "Sesi ini:":  {
+                      "ace":  "Sesi nyoe:"
+                  },
+    "Minggu ini:":  {
+                        "ace":  "Minggu nyoe:"
+                    },
+    "Kelola akun: ganti nama, login ulang, logout, hapus":  {
+                                                                "ace":  "Atô akun: gantoe nan, login lom, logout, sampôh"
+                                                            },
+    "✏️ Ganti nama akun...":  {
+                                  "ace":  "✏️ Gantoe nan akun..."
+                              },
+    "🔑 Login ulang":  {
+                           "ace":  "🔑 Login lom"
+                       },
+    "🚪 Logout":  {
+                      "ace":  "🚪 Logout"
+                  },
+    "Logout akun ini dari Claude Code":  {
+                                             "ace":  "Logout akun nyoe nibak Claude Code"
+                                         },
+    "🗑 Hapus akun dari daftar":  {
+                                      "ace":  "🗑 Sampôh akun nibak daftar"
+                                  },
+    "Folder login-nya tidak dihapus":  {
+                                           "ace":  "Folder login hana geusampôh"
+                                       },
+    "Akun Default (~/.claude) tidak bisa diganti namanya":  {
+                                                                "ace":  "Akun Default (~/.claude) hana jeut gantoe nan"
+                                                            },
+    "🤖 Auto (Mode Otomatis)":  {
+                                    "ace":  "🤖 Auto (Mode Otomatis)"
+                                },
+    "📋 Plan (Rencana Dulu)":  {
+                                   "ace":  "📋 Plan (Rencana Dilèe)"
+                               }
+}
