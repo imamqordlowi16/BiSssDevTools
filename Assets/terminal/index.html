@@ -32,6 +32,12 @@
   .tab.active { color: #FFFFFF; background: #080C14; border-color: #2C4A7A; position: relative; top: 1px; height: 26px; }
   .tab .dot { width: 7px; height: 7px; border-radius: 50%; background: #4ADE80; flex: 0 0 auto; }
   .tab.busy .dot { background: #22D3EE; box-shadow: 0 0 6px #22D3EE; }
+  /* Sedang benar-benar bekerja (Claude memproses / perintah CMD berjalan): titik berkedip. */
+  .tab.working .dot { background: #22D3EE; animation: dotBlink 0.9s ease-in-out infinite; }
+  @keyframes dotBlink {
+    0%, 100% { opacity: 1; box-shadow: 0 0 8px #22D3EE; transform: scale(1.15); }
+    50%      { opacity: 0.2; box-shadow: none; transform: scale(0.85); }
+  }
   .tab.dead .dot { background: #F25F5C; }
   .tab .label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .tab .x { width: 18px; height: 18px; line-height: 17px; text-align: center; border-radius: 4px; color: #5B6B86; font-size: 14px; }
@@ -222,7 +228,8 @@
         case 'focus': activate(t.id, false); break;
         case 'title': t.labelEl.textContent = m.title; t.tabEl.title = m.title; break;
         case 'busy': t.tabEl.classList.toggle('busy', !!m.busy); break;
-        case 'exited': t.tabEl.classList.add('dead'); t.tabEl.classList.remove('busy'); break;
+        case 'working': t.tabEl.classList.toggle('working', !!m.working); break;
+        case 'exited': t.tabEl.classList.add('dead'); t.tabEl.classList.remove('busy', 'working'); break;
         case 'paste': if (m.data) t.term.paste(m.data); t.term.focus(); break;
         // Perintah dari luar layar (kotak input / chip / tombol): tempel lalu Enter,
         // lewat kanal yang sama dengan ketikan biasa supaya urutannya terjaga.
