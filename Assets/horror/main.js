@@ -792,15 +792,28 @@ window.addEventListener('keydown', (e) => {
 });
 window.addEventListener('keyup', (e) => keys.delete(e.code));
 window.addEventListener('blur', () => keys.clear());
+// Bug Chromium/WebView2 di Windows: saat pointer lock, kadang muncul satu event mousemove
+// dengan movementX/Y sangat besar (terutama tepat setelah lock) -> pandangan "berbelok
+// sendiri". Diatasi dengan: (1) lock mode gerakan mentah (unadjustedMovement, lihat
+// requestLock), (2) buang beberapa event pertama setelah lock, (3) buang lonjakan yang
+// jauh di atas gerakan wajar sebelumnya.
+const look = { skip: 0, avg: 8 };
 document.addEventListener('mousemove', (e) => {
   if (!locked || G.screen !== 'play' || overlayOpen()) return;
+  if (look.skip > 0) { look.skip--; return; }
+  const mx = e.movementX || 0, my = e.movementY || 0;
+  const mag = Math.hypot(mx, my);
+  // lonjakan: > 250 px dalam satu event, atau > 12x rata-rata gerakan terakhir (minimal 120 px)
+  if (mag > 250 || (mag > 120 && mag > look.avg * 12)) return;
+  look.avg = look.avg * 0.9 + mag * 0.1;
   const m = me(); if (!m || m.hid) return;
   const s = settings.sens * 0.00018;
-  m.ry -= e.movementX * s;
-  m.pitch = clamp(m.pitch - e.movementY * s, -1.35, 1.35);
+  m.ry -= mx * s;
+  m.pitch = clamp(m.pitch - my * s, -1.35, 1.35);
 });
 document.addEventListener('pointerlockchange', () => {
   locked = document.pointerLockElement === renderer.domElement;
+  if (locked) { look.skip = 3; look.avg = 8; }
   if (locked || G.screen !== 'play' || G.ended || G.intro) return;
   // Esc saat membaca catatan / buku catatan: tutup itu dulu, bukan menu jeda
   if (G.reading >= 0) { closePaper(); return; }
@@ -815,7 +828,13 @@ document.addEventListener('mousedown', () => { if (G.intro) { endIntro(); return
 $('intro').style.pointerEvents = 'auto';
 function requestLock() {
   if (G.screen !== 'play' || overlayOpen()) return;
-  try { const r = renderer.domElement.requestPointerLock(); if (r && r.catch) r.catch(() => { }); } catch { }
+  const el = renderer.domElement;
+  const plain = () => { try { const r = el.requestPointerLock(); if (r && r.catch) r.catch(() => { }); } catch { } };
+  // gerakan mentah (tanpa akselerasi Windows) - lebih stabil & tanpa lonjakan; kalau tidak didukung, pakai biasa
+  try {
+    const r = el.requestPointerLock({ unadjustedMovement: true });
+    if (r && r.catch) r.catch((err) => { if (err && err.name === 'NotSupportedError') plain(); });
+  } catch { plain(); }
 }
 function toggleFullscreen() {
   if (hasBridge) bridge({ cmd: 'fullscreen', on: !G.fullscreen });
