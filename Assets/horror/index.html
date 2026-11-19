@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Malam Terakhir</title>
+<style>
+  :root { --red: #c4122f; --red2: #ff3a52; --ink: #e8e2d6; --dim: #9a9284; --panel: rgba(12, 8, 10, .86); --line: #3a2a2e; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: #000; color: var(--ink); font-family: 'Segoe UI', system-ui, sans-serif; overflow: hidden; user-select: none; }
+  #view { position: fixed; inset: 0; }
+  #view canvas { display: block; width: 100%; height: 100%; image-rendering: pixelated; }
+  .screen { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; padding: 16px; overflow: auto; }
+  .screen[hidden], [hidden] { display: none !important; }
+  .bgfx { background: radial-gradient(ellipse at 50% 30%, rgba(60, 0, 10, .55), rgba(0, 0, 0, .96) 70%); }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 22px 26px; width: min(880px, 100%); box-shadow: 0 0 60px rgba(160, 0, 20, .25); }
+  h1 { font-family: 'Chiller', 'Creepster', 'Segoe Script', serif; font-size: 64px; letter-spacing: 3px; color: var(--red2); margin: 0; text-shadow: 0 0 18px rgba(255, 0, 40, .55), 3px 3px 0 #000; animation: flick 6s infinite; }
+  @keyframes flick { 0%, 92%, 100% { opacity: 1 } 93% { opacity: .3 } 94% { opacity: 1 } 96% { opacity: .5 } 97% { opacity: 1 } }
+  h2 { margin: 0 0 12px; font-size: 22px; color: var(--red2); }
+  .sub { color: var(--dim); margin: 2px 0 16px; font-size: 13px; }
+  label.f { display: block; font-size: 12px; color: var(--dim); margin: 10px 0 4px; text-transform: uppercase; letter-spacing: 1px; }
+  input[type=text] { width: 100%; background: #140d10; color: var(--ink); border: 1px solid var(--line); border-radius: 8px; padding: 9px 12px; font-size: 15px; outline: none; }
+  input[type=text]:focus { border-color: var(--red); }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  .grid4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  @media (max-width: 760px) { .grid4 { grid-template-columns: repeat(2, 1fr); } .grid3 { grid-template-columns: 1fr; } h1 { font-size: 44px; } }
+  .opt { background: #160e11; border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; cursor: pointer; transition: .15s; }
+  .opt:hover { border-color: #6a3a42; }
+  .opt.sel { border-color: var(--red2); background: #2a0d14; box-shadow: 0 0 14px rgba(255, 30, 60, .25) inset; }
+  .opt b { display: block; font-size: 15px; }
+  .opt span { display: block; font-size: 11.5px; color: var(--dim); margin-top: 3px; line-height: 1.35; }
+  .opt.dis { opacity: .45; cursor: default; }
+  button { background: #2a1a1e; color: var(--ink); border: 1px solid #4a2e34; border-radius: 9px; padding: 10px 16px; font-size: 14px; font-weight: 600; cursor: pointer; }
+  button:hover:not(:disabled) { background: #3a2228; }
+  button.pri { background: var(--red); border-color: var(--red2); color: #fff; }
+  button.pri:hover:not(:disabled) { background: #e01838; }
+  button:disabled { opacity: .45; cursor: default; }
+  .msg { color: #ffcf5a; font-size: 13px; margin-top: 10px; min-height: 18px; line-height: 1.4; }
+  .help { color: var(--dim); font-size: 12px; line-height: 1.6; margin-top: 14px; }
+  .help kbd { background: #241619; border: 1px solid #44292f; border-radius: 4px; padding: 0 5px; font-size: 11px; color: var(--ink); }
+  .plist { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  .pslot { border: 1px dashed var(--line); border-radius: 10px; padding: 12px; min-height: 70px; text-align: center; color: var(--dim); font-size: 13px; }
+  .pslot.on { border-style: solid; color: var(--ink); background: #1a1013; }
+  .pslot .nm { font-weight: 700; font-size: 15px; }
+  .pslot .ghost { color: var(--red2); font-weight: 700; }
+  .hosts .opt { margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+  .slider { width: 160px; accent-color: var(--red); }
+  select { background: #140d10; color: var(--ink); border: 1px solid var(--line); border-radius: 8px; padding: 7px 10px; }
+
+  /* HUD */
+  #hud { position: fixed; inset: 0; pointer-events: none; }
+  #obj { position: absolute; left: 18px; top: 14px; font-size: 14px; text-shadow: 0 0 6px #000, 1px 1px 0 #000; max-width: 50%; }
+  #obj .big { font-size: 17px; font-weight: 700; color: #ffd27a; }
+  #bars { position: absolute; left: 18px; bottom: 18px; width: 200px; }
+  .bar { height: 7px; background: rgba(255, 255, 255, .12); border-radius: 4px; margin-top: 6px; overflow: hidden; }
+  .bar > i { display: block; height: 100%; width: 100%; background: #d8d0c0; transition: width .1s; }
+  .bar.bat > i { background: #ffd27a; }
+  .barlbl { font-size: 11px; color: var(--dim); margin-top: 6px; text-shadow: 0 0 4px #000; }
+  #cross { position: absolute; left: 50%; top: 50%; width: 4px; height: 4px; margin: -2px; border-radius: 50%; background: rgba(255, 255, 255, .55); }
+  #prompt { position: absolute; left: 50%; top: 58%; transform: translateX(-50%); font-size: 15px; background: rgba(0, 0, 0, .55); padding: 6px 14px; border-radius: 8px; }
+  #team { position: absolute; right: 16px; top: 14px; font-size: 13px; text-align: right; text-shadow: 0 0 6px #000; line-height: 1.6; }
+  #toast { position: absolute; left: 50%; top: 22%; transform: translateX(-50%); font-size: 18px; font-weight: 700; color: #ffd27a; text-shadow: 0 0 10px #000, 2px 2px 0 #000; text-align: center; transition: opacity .5s; }
+  #timer { position: absolute; left: 50%; top: 12px; transform: translateX(-50%); font-size: 18px; font-weight: 700; text-shadow: 0 0 6px #000; }
+  #vignette { position: absolute; inset: 0; background: radial-gradient(ellipse at center, transparent 45%, rgba(0, 0, 0, .75) 100%); }
+  #redpulse { position: absolute; inset: 0; background: radial-gradient(ellipse at center, transparent 30%, rgba(160, 0, 0, .65) 100%); opacity: 0; }
+  #hiddenOverlay { position: absolute; inset: 0; background:
+      repeating-linear-gradient(90deg, rgba(0,0,0,.95) 0 9%, transparent 9% 11%), rgba(0,0,0,.35); }
+  #hiddenOverlay div { position: absolute; bottom: 18%; width: 100%; text-align: center; font-size: 15px; color: var(--dim); }
+  #spectate { position: absolute; bottom: 70px; width: 100%; text-align: center; font-size: 15px; color: var(--dim); text-shadow: 0 0 6px #000; }
+
+  #clickPlay { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0, 0, 0, .55); cursor: pointer; font-size: 20px; }
+  #scare { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+  #flash { position: fixed; inset: 0; background: #fff; opacity: 0; pointer-events: none; }
+</style>
+</head>
+<body>
+<div id="view"></div>
+
+<!-- ================= HUD ================= -->
+<div id="hud" hidden>
+  <div id="vignette"></div>
+  <div id="redpulse"></div>
+  <div id="obj"></div>
+  <div id="timer" hidden></div>
+  <div id="team"></div>
+  <div id="cross"></div>
+  <div id="prompt" hidden></div>
+  <div id="toast"></div>
+  <div id="spectate" hidden></div>
+  <div id="bars">
+    <div class="barlbl">Stamina</div><div class="bar"><i id="stam"></i></div>
+    <div class="barlbl" id="batLbl">Baterai senter</div><div class="bar bat" id="batBar"><i id="bat"></i></div>
+  </div>
+  <div id="hiddenOverlay" hidden><div>Bersembunyi… tahan napas. Tekan <b>E</b> untuk keluar.</div></div>
+</div>
+
+<!-- ================= MENU UTAMA ================= -->
+<div id="menu" class="screen bgfx">
+  <div class="card">
+    <h1>Malam Terakhir</h1>
+    <div class="sub">Kumpulkan semua barang, temukan jalan keluar, dan jangan sampai tertangkap.</div>
+
+    <div class="row" style="align-items:flex-end">
+      <div style="flex:1;min-width:200px"><label class="f">Nama kamu</label><input id="nameIn" type="text" maxlength="14"></div>
+      <div><label class="f">Kualitas grafis</label>
+        <select id="qualSel"><option value="low">Rendah (laptop lemah)</option><option value="med">Sedang</option><option value="high">Tinggi</option></select></div>
+      <div><label class="f">Volume</label><input id="volIn" class="slider" type="range" min="0" max="100"></div>
+    </div>
+
+    <label class="f">Mode</label>
+    <div class="grid3" id="modes">
+      <div class="opt" data-mode="solo"><b>Solo</b><span>Sendirian melawan hantu.</span></div>
+      <div class="opt" data-mode="coop"><b>Co-op (2-4)</b><span>Kabur bareng teman. Hantu memburu semua.</span></div>
+      <div class="opt" data-mode="versus"><b>Versus (2-4)</b><span>Satu pemain jadi hantu, sisanya kabur.</span></div>
+    </div>
+
+    <label class="f">Lokasi</label>
+    <div class="grid4" id="maps"></div>
+
+    <div class="row" style="margin-top:18px" id="menuBtns">
+      <button class="pri" id="btnSolo">Mulai ▶</button>
+      <button class="pri" id="btnHost">Buat Room (Host)</button>
+      <button id="btnJoin">Gabung Room</button>
+      <button id="btnFw" title="Perlu admin sekali - supaya teman bisa masuk ke room kamu">Izinkan Firewall</button>
+    </div>
+    <div class="msg" id="menuMsg"></div>
+    <div class="help">
+      <kbd>W A S D</kbd> jalan · <kbd>Mouse</kbd> lihat · <kbd>Shift</kbd> lari · <kbd>F</kbd> senter · <kbd>E</kbd> ambil / sembunyi di lemari · <kbd>Esc</kbd> menu.
+      Multiplayer: semua laptop harus di jaringan yang sama (Wi-Fi kantor beda subnet biasanya memblokir - pakai hotspot HP).
+      <br>⚠ Ada jumpscare dan suara keras.
+    </div>
+  </div>
+</div>
+
+<!-- ================= GABUNG ================= -->
+<div id="join" class="screen bgfx" hidden>
+  <div class="card">
+    <h2>Gabung Room</h2>
+    <div class="sub">Room teman di jaringan yang sama muncul otomatis di bawah.</div>
+    <div class="hosts" id="hostList"></div>
+    <label class="f">Atau ketik IP host</label>
+    <div class="row"><input id="ipIn" type="text" placeholder="contoh 192.168.43.10" style="flex:1"><button class="pri" id="btnConnect">Sambung</button></div>
+    <div class="msg" id="joinMsg"></div>
+    <div class="row" style="margin-top:14px"><button id="btnJoinBack">Kembali</button></div>
+  </div>
+</div>
+
+<!-- ================= LOBBY ================= -->
+<div id="lobby" class="screen bgfx" hidden>
+  <div class="card">
+    <h2 id="lobbyTitle">Room</h2>
+    <div class="sub" id="lobbySub"></div>
+    <div class="plist" id="plist"></div>
+    <div id="lobbyHostOpts">
+      <label class="f">Mode</label>
+      <div class="grid3" id="lModes">
+        <div class="opt" data-mode="coop"><b>Co-op</b><span>Kabur bareng, hantu dikendalikan komputer.</span></div>
+        <div class="opt" data-mode="versus"><b>Versus</b><span>Satu pemain jadi hantu.</span></div>
+        <div class="opt" data-mode="solo" style="display:none"></div>
+      </div>
+      <div id="ghostPick" hidden><label class="f">Siapa yang jadi hantu?</label><select id="ghostSel"></select></div>
+      <label class="f">Lokasi</label>
+      <div class="grid4" id="lMaps"></div>
+    </div>
+    <div class="row" style="margin-top:18px">
+      <button class="pri" id="btnStart">Mulai ▶</button>
+      <button id="btnLeave">Keluar</button>
+    </div>
+    <div class="msg" id="lobbyMsg"></div>
+  </div>
+</div>
+
+<!-- ================= PAUSE ================= -->
+<div id="pause" class="screen" style="background:rgba(0,0,0,.7)" hidden>
+  <div class="card" style="width:min(420px,100%)">
+    <h2>Menu</h2>
+    <div class="sub" id="pauseSub">Permainan dijeda.</div>
+    <label class="f">Sensitivitas mouse</label><input id="sensIn" class="slider" type="range" min="2" max="40" style="width:100%">
+    <label class="f">Volume</label><input id="vol2In" class="slider" type="range" min="0" max="100" style="width:100%">
+    <div class="row" style="margin-top:18px">
+      <button class="pri" id="btnResume">Lanjut</button>
+      <button id="btnQuit">Keluar ke menu</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= HASIL ================= -->
+<div id="end" class="screen bgfx" hidden>
+  <div class="card" style="width:min(560px,100%)">
+    <h2 id="endTitle"></h2>
+    <div class="sub" id="endSub"></div>
+    <div id="endList" style="line-height:1.8"></div>
+    <div class="row" style="margin-top:18px">
+      <button class="pri" id="btnAgain">Main lagi</button>
+      <button id="btnEndMenu">Menu</button>
+    </div>
+    <div class="msg" id="endMsg"></div>
+  </div>
+</div>
+
+<div id="clickPlay" hidden>Klik untuk bermain</div>
+<canvas id="scare" hidden></canvas>
+<div id="flash"></div>
+
+<script type="module" src="main.js"></script>
+</body>
+</html>
