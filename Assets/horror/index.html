@@ -69,6 +69,45 @@
   #hiddenOverlay div { position: absolute; bottom: 18%; width: 100%; text-align: center; font-size: 15px; color: var(--dim); }
   #spectate { position: absolute; bottom: 70px; width: 100%; text-align: center; font-size: 15px; color: var(--dim); text-shadow: 0 0 6px #000; }
 
+  .grid5 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  @media (max-width: 760px) { .grid5 { grid-template-columns: repeat(2, 1fr); } }
+  .topbtns { position: absolute; top: 14px; right: 16px; display: flex; gap: 8px; }
+  .topbtns button { padding: 6px 12px; font-size: 12.5px; }
+  #mirror { position: absolute; right: 16px; bottom: 40px; width: 96px; height: 96px; border-radius: 50%; border: 2px solid rgba(255,58,82,.6); box-shadow: 0 0 14px rgba(0,0,0,.8); }
+  .camRow { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
+  .camRow canvas { width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--line); background: #140d10; }
+  .camRow .sub { margin: 0; }
+  .pslot img { width: 48px; height: 48px; border-radius: 50%; object-fit: cover; display: block; margin: 0 auto 6px; border: 1px solid var(--line); }
+  #hintKey { position: absolute; right: 16px; bottom: 16px; font-size: 12px; color: var(--dim); text-shadow: 0 0 4px #000; }
+
+  /* opening tiap peta */
+  #intro { position: fixed; inset: 0; pointer-events: none; }
+  #intro .shade { position: absolute; inset: 0; background: linear-gradient(transparent 55%, rgba(0,0,0,.85)); }
+  #intro .fade { position: absolute; inset: 0; background: #000; opacity: 0; transition: opacity .6s; }
+  #intro .title { position: absolute; left: 6%; top: 10%; font-family: 'Chiller', 'Segoe Script', serif; font-size: 72px; color: var(--red2); text-shadow: 0 0 20px rgba(255,0,40,.6), 3px 3px 0 #000; opacity: 0; transition: opacity 1.2s; }
+  #intro .place { position: absolute; left: 6.3%; top: calc(10% + 84px); font-size: 15px; letter-spacing: 3px; text-transform: uppercase; color: #cfc6b6; opacity: 0; transition: opacity 1.2s; }
+  #intro .lines { position: absolute; left: 6%; right: 6%; bottom: 14%; font-size: 22px; line-height: 1.6; text-shadow: 0 0 10px #000, 2px 2px 0 #000; font-family: Georgia, 'Times New Roman', serif; }
+  #intro .lines .ghostline { color: var(--red2); font-weight: 700; }
+  #intro .skip { position: absolute; right: 24px; bottom: 20px; font-size: 13px; color: var(--dim); }
+
+  /* kertas catatan */
+  #paper { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,.55); }
+  #paper .sheet { width: min(520px, 92vw); min-height: 300px; padding: 34px 38px; color: #2a1c12; transform: rotate(-1.2deg);
+    background: radial-gradient(ellipse at 30% 20%, #efe2c0, #d9c79c 70%, #b9a274); box-shadow: 0 10px 40px rgba(0,0,0,.8), inset 0 0 60px rgba(90,60,20,.45);
+    font-family: 'Ink Free', 'Segoe Print', 'Comic Sans MS', cursive; font-size: 19px; line-height: 1.55; }
+  #paper .sheet h3 { margin: 0 0 14px; font-size: 22px; }
+  #paper .sheet .hint { margin-top: 16px; color: #7a0d0d; font-weight: 700; }
+  #paper .close { margin-top: 22px; font-family: 'Segoe UI', sans-serif; font-size: 12px; color: #6a5638; }
+
+  /* buku catatan */
+  #journal { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,.6); }
+  #journal .card { width: min(640px, 94vw); max-height: 86vh; overflow: auto; }
+  #journal .it { padding: 8px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
+  #journal .it.done { color: #7fd08a; }
+  #journal .it small { display: block; color: var(--dim); margin-top: 2px; }
+  #journal .noteBtn { display: block; width: 100%; text-align: left; margin-top: 6px; font-weight: 400; }
+
+  /* halaman pembuka (sebelum game dimuat) di-handle C#; ini untuk tombol tutup game */
   #clickPlay { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0, 0, 0, .55); cursor: pointer; font-size: 20px; }
   #scare { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; }
   #flash { position: fixed; inset: 0; background: #fff; opacity: 0; pointer-events: none; }
@@ -93,6 +132,36 @@
     <div class="barlbl" id="batLbl">Baterai senter</div><div class="bar bat" id="batBar"><i id="bat"></i></div>
   </div>
   <div id="hiddenOverlay" hidden><div>Bersembunyi… tahan napas. Tekan <b>E</b> untuk keluar.</div></div>
+  <canvas id="mirror" width="96" height="96" hidden></canvas>
+  <div id="hintKey"><b>J</b> buku catatan · <b>F11</b> layar penuh</div>
+</div>
+
+<!-- ================= OPENING ================= -->
+<div id="intro" hidden>
+  <div class="shade"></div>
+  <div class="title" id="introTitle"></div>
+  <div class="place" id="introPlace"></div>
+  <div class="lines" id="introLines"></div>
+  <div class="skip" id="introSkip">Spasi / klik untuk lewati</div>
+  <div class="fade" id="introFade"></div>
+</div>
+
+<!-- ================= CATATAN ================= -->
+<div id="paper" hidden>
+  <div class="sheet"><h3 id="paperTitle"></h3><div id="paperText"></div><div class="hint" id="paperHint"></div><div class="close">E / Esc / klik untuk menutup</div></div>
+</div>
+
+<!-- ================= BUKU CATATAN ================= -->
+<div id="journal" hidden>
+  <div class="card">
+    <h2>Buku Catatan</h2>
+    <div class="sub" id="jSub"></div>
+    <label class="f">Yang harus dikumpulkan</label>
+    <div id="jItems"></div>
+    <label class="f">Catatan yang sudah dibaca</label>
+    <div id="jNotes"></div>
+    <div class="help">J / Tab / Esc untuk menutup</div>
+  </div>
 </div>
 
 <!-- ================= MENU UTAMA ================= -->
@@ -108,6 +177,8 @@
       <div><label class="f">Volume</label><input id="volIn" class="slider" type="range" min="0" max="100"></div>
     </div>
 
+    <div class="camRow"><button class="camBtn">📷 Wajah dari kamera: Mati</button><canvas id="camPreview" width="44" height="44"></canvas><div class="sub" id="camInfo">Opsional. Kalau dinyalakan, wajahmu tampil di karakter dan terlihat teman di room yang sama (tidak dikirim ke internet, tidak disimpan).</div></div>
+
     <label class="f">Mode</label>
     <div class="grid3" id="modes">
       <div class="opt" data-mode="solo"><b>Solo</b><span>Sendirian melawan hantu.</span></div>
@@ -118,11 +189,19 @@
     <label class="f">Lokasi</label>
     <div class="grid4" id="maps"></div>
 
+    <div class="row" style="align-items:flex-start;gap:16px">
+      <div style="flex:2;min-width:280px"><label class="f">Kesulitan</label><div class="grid5" id="diffs"></div></div>
+      <div style="flex:1;min-width:180px"><label class="f">Hantu</label><select id="ghostTypeSel" style="width:100%"></select><div class="sub" id="ghostDesc" style="margin:6px 0 0"></div></div>
+    </div>
+
     <div class="row" style="margin-top:18px" id="menuBtns">
       <button class="pri" id="btnSolo">Mulai ▶</button>
       <button class="pri" id="btnHost">Buat Room (Host)</button>
       <button id="btnJoin">Gabung Room</button>
       <button id="btnFw" title="Perlu admin sekali - supaya teman bisa masuk ke room kamu">Izinkan Firewall</button>
+      <span style="flex:1"></span>
+      <button class="fsBtn">⛶ Layar Penuh</button>
+      <button id="btnCloseGame" title="Kembali ke halaman pembuka & bebaskan memori">✕ Tutup Game</button>
     </div>
     <div class="msg" id="menuMsg"></div>
     <div class="help">
@@ -162,6 +241,10 @@
       <div id="ghostPick" hidden><label class="f">Siapa yang jadi hantu?</label><select id="ghostSel"></select></div>
       <label class="f">Lokasi</label>
       <div class="grid4" id="lMaps"></div>
+      <div class="row" style="align-items:flex-start;gap:16px">
+        <div style="flex:2;min-width:280px"><label class="f">Kesulitan</label><div class="grid5" id="lDiffs"></div></div>
+        <div style="flex:1;min-width:180px"><label class="f">Jenis hantu</label><select id="lGhostTypeSel" style="width:100%"></select></div>
+      </div>
     </div>
     <div class="row" style="margin-top:18px">
       <button class="pri" id="btnStart">Mulai ▶</button>
@@ -180,6 +263,9 @@
     <label class="f">Volume</label><input id="vol2In" class="slider" type="range" min="0" max="100" style="width:100%">
     <div class="row" style="margin-top:18px">
       <button class="pri" id="btnResume">Lanjut</button>
+      <button id="btnJournal">Buku Catatan (J)</button>
+      <button class="camBtn">📷 Kamera</button>
+      <button class="fsBtn">⛶ Layar Penuh</button>
       <button id="btnQuit">Keluar ke menu</button>
     </div>
   </div>
