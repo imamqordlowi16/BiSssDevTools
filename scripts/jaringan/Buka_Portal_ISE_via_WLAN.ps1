@@ -29,12 +29,19 @@ if ($Hapus) {
     Stop-Transcript | Out-Null; exit 0
 }
 
-$wifi = Get-NetAdapter -Physical | Where-Object { $_.Status -eq 'Up' -and $_.InterfaceDescription -match 'Wireless|Wi-Fi|WLAN' } | Select-Object -First 1
+# SSID per adapter dari netsh (BUKAN Get-NetConnectionProfile.Name - itu nama profil jaringan Windows,
+# bisa "WLAN-NON-CORP 4"). Bisa ada 2 Wi-Fi (bawaan + dongle USB): pilih yang di WLAN-NON-CORP.
+$ssidMap = @{}; $nm = $null
+foreach ($l in (netsh wlan show interfaces 2>$null)) {
+    if ($l -match '^\s*Name\s*:\s*(.+)$') { $nm = $Matches[1].Trim() }
+    elseif ($nm -and $l -match '^\s*SSID\s*:\s*(.+)$') { $ssidMap[$nm] = $Matches[1].Trim() }
+}
+$wifiAllUp = @(Get-NetAdapter -Physical | Where-Object { $_.Status -eq 'Up' -and $_.InterfaceDescription -match 'Wireless|Wi-Fi|WLAN|802\.11' })
+$wifi = $wifiAllUp | Where-Object { $ssidMap[$_.Name] -eq 'WLAN-NON-CORP' } | Select-Object -First 1
+if (-not $wifi) { $wifi = $wifiAllUp | Select-Object -First 1 }
 if (-not $wifi) { Write-Host "[BERHENTI] Wi-Fi tidak tersambung." -ForegroundColor Red; Stop-Transcript | Out-Null; exit 1 }
-# SSID dari netsh (BUKAN Get-NetConnectionProfile.Name - itu nama profil jaringan Windows,
-# bisa "WLAN-NON-CORP 4", sehingga -HanyaJikaCaptive dulu salah LEWAT).
-$ssid = ((netsh wlan show interfaces 2>$null) | Where-Object { $_ -match '^\s*SSID\s*:\s*(.+)$' } | Select-Object -First 1) -replace '^\s*SSID\s*:\s*', ''
-$ssid = if ($ssid) { $ssid.Trim() } else { (Get-NetConnectionProfile -InterfaceIndex $wifi.InterfaceIndex).Name }
+$ssid = $ssidMap[$wifi.Name]
+$ssid = if ($ssid) { $ssid } else { (Get-NetConnectionProfile -InterfaceIndex $wifi.InterfaceIndex).Name }
 $wifiGw = (Get-NetRoute -InterfaceIndex $wifi.InterfaceIndex -DestinationPrefix '0.0.0.0/0' -AddressFamily IPv4 | Sort-Object RouteMetric | Select-Object -First 1).NextHop
 $wifiIp = (Get-NetIPAddress -InterfaceIndex $wifi.InterfaceIndex -AddressFamily IPv4).IPAddress
 Write-Host "Wi-Fi: $($wifi.Name) ($ssid)  IP=$wifiIp  GW=$wifiGw"

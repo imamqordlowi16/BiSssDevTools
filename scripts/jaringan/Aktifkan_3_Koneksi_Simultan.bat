@@ -1,5 +1,5 @@
 @echo off
-title Aktifkan 3 Koneksi (Ethernet + WLAN-NON-CORP + Sangfor aTrust)
+title Aktifkan 3 Koneksi (Ethernet atau Dongle Wi-Fi + WLAN-NON-CORP + Sangfor aTrust)
 cd /d "%~dp0"
 
 :: [AUTO-ELEVATE] Cek hak Administrator, jika belum otomatis minta UAC
@@ -10,7 +10,7 @@ if %errorlevel% neq 0 (
     exit /b
 )
 
-:: [1] Split routing 3 koneksi (Ethernet=Internet, WLAN-NON-CORP=Dev/DB, aTrust)
+:: [1] Split routing 3 koneksi (Ethernet/tethering USB atau dongle Wi-Fi=Internet, WLAN-NON-CORP=Dev/DB, aTrust)
 powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0setup_3_koneksi.ps1"
 
 :: [2] Bila WLAN-NON-CORP masih tertahan captive portal ISE (dc1isepsn02), buka portalnya

@@ -103,16 +103,40 @@ if ($atrustUp) {
 }
 
 # ---------------------------------------------------------------- fungsi bantu
+# Bisa ada 2 Wi-Fi (bawaan laptop + dongle USB untuk Internet). SSID dibaca PER adapter.
+function Get-WlanSsids {
+    $map = @{}; $name = $null
+    foreach ($l in (netsh wlan show interfaces 2>$null)) {
+        if ($l -match '^\s*Name\s*:\s*(.+)$') { $name = $Matches[1].Trim() }
+        elseif ($name -and $l -match '^\s*SSID\s*:\s*(.+)$') { $map[$name] = $Matches[1].Trim() }
+    }
+    return $map
+}
+function Get-WifiAll {
+    @(Get-NetAdapter -Physical -ErrorAction SilentlyContinue | Where-Object {
+        $_.Status -notin 'Disabled', 'Not Present' -and ($_.InterfaceDescription -match 'Wireless|Wi-Fi|802\.11|WiFi|WLAN' -or $_.Name -match '^Wi-Fi|WLAN')
+    })
+}
+# adapter Wi-Fi yang masih bebas (tidak tersambung ke SSID mana pun), utamakan Wi-Fi bawaan (bukan USB)
+function Get-WifiBebas {
+    $s = Get-WlanSsids
+    Get-WifiAll | Where-Object { -not $s.ContainsKey($_.Name) } |
+        Sort-Object @{ Expression = { $_.InterfaceDescription -match 'USB' } } | Select-Object -First 1
+}
+# WLAN-NON-CORP bila ada adapter yang tersambung ke sana; $null bila masih ada Wi-Fi bebas
+# (dongle yang dipakai Internet tidak dihitung sebagai "Wi-Fi di SSID lain"); selain itu SSID lain.
 function Get-CurrentSsid {
-    $out = netsh wlan show interfaces 2>$null
-    $line = $out | Where-Object { $_ -match '^\s*SSID\s*:\s*(.+)$' } | Select-Object -First 1
-    if ($line -match '^\s*SSID\s*:\s*(.+)$') { return $Matches[1].Trim() }
-    return $null
+    $s = Get-WlanSsids
+    if ($s.Values -contains $SsidNonCorp) { return $SsidNonCorp }
+    if (Get-WifiBebas) { return $null }
+    return ($s.Values | Select-Object -First 1)
 }
 function Get-WifiAdapter {
-    Get-NetAdapter -Physical -ErrorAction SilentlyContinue | Where-Object {
-        $_.Status -eq 'Up' -and ($_.InterfaceDescription -match 'Wireless|Wi-Fi|802\.11|WiFi|WLAN' -or $_.Name -match '^Wi-Fi|WLAN')
-    } | Select-Object -First 1
+    $s = Get-WlanSsids
+    $up = @(Get-WifiAll | Where-Object Status -eq 'Up')
+    $nc = $up | Where-Object { $s[$_.Name] -eq $SsidNonCorp } | Select-Object -First 1
+    if ($nc) { return $nc }
+    return ($up | Select-Object -First 1)
 }
 function Get-WifiGateway {
     $w = Get-WifiAdapter
@@ -171,7 +195,8 @@ if ($ssid -eq $SsidNonCorp) {
         exit 0
     }
     Log "$SsidNonCorp terlihat, menyambungkan (maks $TungguDtk dtk)..." 'Cyan'
-    $out = netsh wlan connect name="$SsidNonCorp" 2>&1
+    $bebas = Get-WifiBebas
+    $out = if ($bebas) { netsh wlan connect name="$SsidNonCorp" interface="$($bebas.Name)" 2>&1 } else { netsh wlan connect name="$SsidNonCorp" 2>&1 }
     Log "  netsh: $(($out -join ' ').Trim())" 'DarkGray'
     $gw = Wait-WifiSiap $TungguDtk
     $ssid = Get-CurrentSsid

@@ -1,8 +1,10 @@
 <#
   setup_3_koneksi.ps1 - Split routing 3 koneksi, menyesuaikan jaringan tempat laptop berada.
 
-    MODE KANTOR  (Wi-Fi tersambung ke SSID WLAN-NON-CORP):
-      1. Ethernet        -> Internet publik (default route, metric terendah)
+    MODE KANTOR  (salah satu Wi-Fi - bawaan ATAU dongle USB - tersambung ke SSID WLAN-NON-CORP):
+      1. Internet        -> Ethernet / tethering USB HP, atau kalau tidak ada: dongle Wi-Fi (Wi-Fi yang
+                            BUKAN WLAN-NON-CORP, mis. ke MiFi/hotspot HP). Default route, metric terendah.
+                            Internet lain yang juga aktif jadi cadangan (metric 25).
       2. WLAN-NON-CORP   -> Server Dev & DB 10.239.x / 10.230.x / 10.161.x (/32 + /16)
       3. aTrustVNIC      -> 10.28.224.213:1521
 
@@ -18,16 +20,27 @@
     setup_3_koneksi.ps1            # terapkan (perlu Administrator)
     setup_3_koneksi.ps1 -DryRun    # hanya deteksi & tampilkan rencana, tanpa mengubah apa pun
     setup_3_koneksi.ps1 -NoConnect # jangan coba sambung otomatis ke WLAN-NON-CORP
+    setup_3_koneksi.ps1 -Internet Dongle      # paksa Internet lewat dongle Wi-Fi walau Ethernet ada
+    setup_3_koneksi.ps1 -Internet Ethernet    # paksa Internet lewat Ethernet/USB
+    setup_3_koneksi.ps1 -WifiNonCorp Dongle   # sambungkan WLAN-NON-CORP lewat dongle (bawaan untuk Internet)
 #>
 param(
     [switch]$DryRun,
-    [switch]$NoConnect
+    [switch]$NoConnect,
+    # Jalur Internet: Otomatis = Ethernet/tethering USB bila ada, kalau tidak dongle Wi-Fi (Wi-Fi kedua).
+    [ValidateSet('Otomatis', 'Ethernet', 'Dongle')]
+    [string]$Internet = 'Otomatis',
+    # Adapter yang dipakai saat MENYAMBUNGKAN otomatis ke WLAN-NON-CORP (yang sudah tersambung selalu dikenali,
+    # lewat adapter mana pun): Otomatis = yang masih bebas, utamakan Wi-Fi bawaan laptop.
+    [ValidateSet('Otomatis', 'Bawaan', 'Dongle')]
+    [string]$WifiNonCorp = 'Otomatis'
 )
 
 $ErrorActionPreference = 'Continue'
 $SsidNonCorp    = 'WLAN-NON-CORP'
 $MetricEthernet = 5
 $MetricWifi     = 45
+$MetricCadangan = 25   # Internet kedua (mis. dongle saat Ethernet juga ada)
 $GwNonCorpDefault = '10.149.0.1'   # dipakai hanya bila DHCP WLAN-NON-CORP tidak memberi gateway
 
 # Host internal yang diuji & dirutekan. Port hanya untuk uji koneksi.
@@ -82,10 +95,22 @@ function Test-PortQuick {
     } catch { return "ERROR" } finally { $client.Close() }
 }
 
-function Get-CurrentSsid {
-    $out = netsh wlan show interfaces 2>$null
-    $line = $out | Where-Object { $_ -match '^\s*SSID\s*:\s*(.+)$' } | Select-Object -First 1
-    if ($line -match '^\s*SSID\s*:\s*(.+)$') { return $Matches[1].Trim() }
+# SSID per adapter Wi-Fi (bisa lebih dari satu: Wi-Fi bawaan + dongle USB).
+# Hasil: hashtable NamaAdapter -> SSID (hanya yang tersambung).
+function Get-WlanSsids {
+    $map = @{}; $name = $null
+    foreach ($l in (netsh wlan show interfaces 2>$null)) {
+        if ($l -match '^\s*Name\s*:\s*(.+)$') { $name = $Matches[1].Trim() }
+        elseif ($name -and $l -match '^\s*SSID\s*:\s*(.+)$') { $map[$name] = $Matches[1].Trim() }
+    }
+    return $map
+}
+
+# adapter Wi-Fi yang tersambung ke WLAN-NON-CORP (bukan sekadar SSID pertama di netsh)
+function Get-NonCorpWifi {
+    $ssids = Get-WlanSsids
+    $nama = $ssids.Keys | Where-Object { $ssids[$_] -eq $SsidNonCorp } | Select-Object -First 1
+    if ($nama) { return Get-NetAdapter -Name $nama -ErrorAction SilentlyContinue | Where-Object Status -eq 'Up' }
     return $null
 }
 
@@ -140,46 +165,72 @@ function Add-Route([string]$Prefix, [int]$IfIndex, [string]$Gw, [string]$Ket) {
 # ====================================================================
 Write-Host "[1/6] Mendeteksi adapter dan jaringan..." -ForegroundColor Yellow
 
-$wifiAll = Get-NetAdapter | Where-Object {
-    $_.InterfaceDescription -match 'Wireless|Wi-Fi|802\.11|WiFi' -or $_.Name -match '^Wi-Fi|WLAN'
-}
-$wifi = $wifiAll | Where-Object Status -eq 'Up' | Select-Object -First 1
-$ssid = Get-CurrentSsid
+$wifiAll = @(Get-NetAdapter | Where-Object {
+    $_.Status -ne 'Not Present' -and ($_.InterfaceDescription -match 'Wireless|Wi-Fi|802\.11|WiFi' -or $_.Name -match '^Wi-Fi|WLAN')
+})
+# Wi-Fi untuk WLAN-NON-CORP = adapter yang SSID-nya WLAN-NON-CORP (bukan dongle yang tersambung ke HP/MiFi)
+$wifi = Get-NonCorpWifi
+$modeKantor = [bool]$wifi
 
-# Coba sambung ke WLAN-NON-CORP bila SSID-nya terlihat tapi belum tersambung
-$modeKantor = ($ssid -eq $SsidNonCorp)
+# Coba sambung ke WLAN-NON-CORP bila SSID-nya terlihat tapi belum tersambung.
+# Pakai adapter Wi-Fi yang BELUM tersambung ke jaringan lain (dongle yang dipakai Internet tidak diganggu),
+# utamakan Wi-Fi bawaan laptop (bukan USB).
 if (-not $modeKantor -and -not $NoConnect -and -not $DryRun -and $wifiAll) {
+    $ssidsNow = Get-WlanSsids
+    $bebas = @($wifiAll | Where-Object { -not $ssidsNow.ContainsKey($_.Name) })
+    $kandidat = switch ($WifiNonCorp) {
+        'Bawaan' { $wifiAll | Where-Object { $_.InterfaceDescription -notmatch 'USB' } | Select-Object -First 1 }
+        'Dongle' { $wifiAll | Where-Object { $_.InterfaceDescription -match 'USB' } | Select-Object -First 1 }
+        default  { $bebas | Sort-Object @{ Expression = { $_.InterfaceDescription -match 'USB' } } | Select-Object -First 1 }
+    }
     $terlihat = (netsh wlan show networks 2>$null) -match "^\s*SSID \d+\s*:\s*$([regex]::Escape($SsidNonCorp))\s*$"
-    if ($terlihat) {
-        Write-Host "  [..] SSID $SsidNonCorp terlihat, menyambungkan (maks 25 dtk)..." -ForegroundColor Cyan
-        netsh wlan connect name="$SsidNonCorp" | Out-Null
+    if (-not $kandidat) {
+        Write-Host "  [!] Semua adapter Wi-Fi sudah tersambung ke jaringan lain - $SsidNonCorp tidak disambungkan otomatis." -ForegroundColor Yellow
+    } elseif ($terlihat) {
+        Write-Host "  [..] SSID $SsidNonCorp terlihat, menyambungkan lewat $($kandidat.Name) (maks 25 dtk)..." -ForegroundColor Cyan
+        netsh wlan connect name="$SsidNonCorp" interface="$($kandidat.Name)" | Out-Null
         $t = Get-Date
         do {
             Start-Sleep -Seconds 2
-            $ssid = Get-CurrentSsid
-            $gwOk = $false
-            if ($ssid -eq $SsidNonCorp) {
-                $wifi = $wifiAll | Where-Object Status -eq 'Up' | Select-Object -First 1
-                if ($wifi) { $gwOk = [bool](Get-DefaultGateway $wifi.InterfaceIndex) }
-            }
+            $wifi = Get-NonCorpWifi
+            $gwOk = $wifi -and [bool](Get-DefaultGateway $wifi.InterfaceIndex)
         } until ($gwOk -or ((Get-Date) - $t).TotalSeconds -gt 25)
-        $modeKantor = ($ssid -eq $SsidNonCorp)
+        $modeKantor = [bool]$wifi
         if (-not $modeKantor) { Write-Host "  [!] Gagal tersambung ke $SsidNonCorp, lanjut sebagai MODE LUAR KANTOR." -ForegroundColor Yellow }
     }
 }
+$ssid = if ($wifi) { $SsidNonCorp } else { $null }
 
 # aTrust: hanya adapter yang Up (ada adapter Sangfor lama 'Not Present' yang harus diabaikan)
 $atrust = Get-NetAdapter | Where-Object {
     $_.Status -eq 'Up' -and ($_.InterfaceDescription -match 'aTrust|Sangfor' -or $_.Name -match 'aTrust|Sangfor')
 } | Select-Object -First 1
 
-# Ethernet: adapter fisik/USB tethering yang Up, bukan Wi-Fi & bukan virtual/VPN
+# Jalur Internet (variabel $ethernet dipakai di bawah = "adapter Internet"):
+#   - Ethernet : kabel LAN / tethering USB HP / adaptor USB-LAN yang Up dan punya gateway
+#   - Dongle   : adapter Wi-Fi LAIN (bukan yang di WLAN-NON-CORP) yang Up dan punya gateway, mis. dongle USB ke MiFi/HP
+# Mode Kantor tanpa Ethernet/dongle: Internet lewat WLAN-NON-CORP sendiri (seperti dulu).
 $excludeIdx = @($wifi.InterfaceIndex, $atrust.InterfaceIndex) | Where-Object { $_ }
-$ethernet = Get-NetAdapter | Where-Object {
+$kabel = @(Get-NetAdapter | Where-Object {
     $_.Status -eq 'Up' -and $excludeIdx -notcontains $_.InterfaceIndex -and
     $_.InterfaceDescription -notmatch 'aTrust|Sangfor|Virtual|Hyper-V|TAP|Fortinet|Loopback|Bluetooth|Wireless|Wi-Fi|802\.11' -and
-    $_.Name -notmatch '^vEthernet'
-} | Select-Object -First 1
+    $_.Name -notmatch '^vEthernet' -and (Get-DefaultGateway $_.InterfaceIndex)
+})
+$dongle = @($wifiAll | Where-Object {
+    $_.Status -eq 'Up' -and $excludeIdx -notcontains $_.InterfaceIndex -and (Get-DefaultGateway $_.InterfaceIndex)
+})
+$ethernet = switch ($Internet) {
+    'Ethernet' { $kabel | Select-Object -First 1 }
+    'Dongle'   { $dongle | Select-Object -First 1 }
+    default    { @($kabel) + @($dongle) | Select-Object -First 1 }
+}
+if (-not $ethernet -and $Internet -ne 'Otomatis') {
+    Write-Host "  [!] -Internet $Internet diminta tapi adapter itu tidak aktif / tanpa gateway; pakai yang tersedia." -ForegroundColor Yellow
+    $ethernet = @($kabel) + @($dongle) | Select-Object -First 1
+}
+$jenisInternet = if (-not $ethernet) { '' } elseif ($dongle -contains $ethernet) { 'dongle Wi-Fi' } else { 'Ethernet/USB' }
+# cadangan Internet lain yang Up (mis. Ethernet dicabut nanti) -> metric menengah, tidak menyalip jalur utama
+$cadangan = @(@($kabel) + @($dongle) | Where-Object { $_ -and $_.InterfaceIndex -ne $ethernet.InterfaceIndex })
 
 $wifiGw = $null; $ethGw = $null; $atrustGw = $null
 if ($wifi)     { $wifiGw = Get-DefaultGateway $wifi.InterfaceIndex; if ($modeKantor -and -not $wifiGw) { $wifiGw = $GwNonCorpDefault } }
@@ -203,8 +254,10 @@ function Show-If($label, $ad, $gw, $extra) {
         Write-Host ("  [-] {0,-14}: tidak aktif" -f $label) -ForegroundColor DarkGray
     }
 }
-Show-If 'Ethernet'   $ethernet $ethGw    ''
-Show-If 'Wi-Fi'      $wifi     $wifiGw   $(if ($ssid) { "SSID: $ssid" } else { '' })
+$ssidMap = Get-WlanSsids
+Show-If 'Internet'   $ethernet $ethGw    $(if ($ethernet) { "[$jenisInternet]" + $(if ($ssidMap[$ethernet.Name]) { " SSID: $($ssidMap[$ethernet.Name])" } else { '' }) } else { '' })
+foreach ($c in $cadangan) { Show-If 'Cadangan' $c (Get-DefaultGateway $c.InterfaceIndex) '(Internet cadangan)' }
+Show-If 'WLAN-NON-CORP' $wifi  $wifiGw   $(if ($ssid) { "SSID: $ssid" } else { '' })
 Show-If 'aTrustVNIC' $atrust   $atrustGw ''
 Write-Host ""
 if ($modeKantor) {
@@ -236,6 +289,10 @@ if ($ethernet -and $ethGw) {
     if ($wifi) {
         if (-not $DryRun) { Set-NetIPInterface -InterfaceIndex $wifi.InterfaceIndex -AddressFamily IPv4 -InterfaceMetric $MetricWifi -ErrorAction SilentlyContinue }
         Write-Host "  [OK] $($wifi.Name) metric = $MetricWifi (bukan jalur Internet utama)." -ForegroundColor Green
+    }
+    foreach ($c in $cadangan) {
+        if (-not $DryRun) { Set-NetIPInterface -InterfaceIndex $c.InterfaceIndex -AddressFamily IPv4 -InterfaceMetric $MetricCadangan -ErrorAction SilentlyContinue }
+        Write-Host "  [OK] $($c.Name) metric = $MetricCadangan (Internet cadangan)." -ForegroundColor Green
     }
 } else {
     if ($ethernet) { Write-Host "  [!] $($ethernet.Name) Up tapi tanpa gateway; Internet lewat Wi-Fi." -ForegroundColor Yellow }
