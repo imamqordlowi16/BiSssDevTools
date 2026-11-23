@@ -246,6 +246,15 @@ if ($in.Ssid -ne $SsidNonCorp) {
 # Dongle: WLAN-PUBLIC-BI langsung bila sinyalnya cukup & tidak sedang jeda-gagal; selain itu cadangan (HUAWEI).
 $fileGagal = Join-Path (Split-Path $StatusFile -Parent) 'dual-wifi.public-gagal.txt'
 $jedaSisa = if (Test-Path $fileGagal) { [math]::Ceiling($JedaGagalMenit - ((Get-Date) - (Get-Item $fileGagal).LastWriteTime).TotalMinutes) } else { 0 }
+# Dongle baru saja DIPUTUS DRIVER dari WLAN-PUBLIC-BI (sinyal 2.4 GHz lemah) = gagal juga. Tanpa ini watchdog
+# (dipicu event 8001 saat Windows pindah ke HUAWEI) langsung memaksa balik ke WLAN-PUBLIC-BI -> bolak-balik
+# dan memutus unduhan/push yang sedang jalan (23-11 17:21-17:23).
+if ($jedaSisa -le 0 -and $dg.Ssid -ne $SsidUtama) {
+    $putus = Get-WinEvent -FilterHashtable @{ LogName = 'Microsoft-Windows-WLAN-AutoConfig/Operational'; Id = 8003; StartTime = (Get-Date).AddMinutes(-$JedaGagalMenit) } -ErrorAction SilentlyContinue |
+        Where-Object { $x = [xml]$_.ToXml(); $d = @{}; $x.Event.EventData.Data | ForEach-Object { $d[$_.Name] = $_.'#text' }
+                       $d.SSID -eq $SsidUtama -and $d.InterfaceDescription -eq $dg.Description -and $d.Reason -match 'driver' } | Select-Object -First 1
+    if ($putus) { $jedaSisa = [math]::Ceiling($JedaGagalMenit - ((Get-Date) - $putus.TimeCreated).TotalMinutes); Log "  Dongle diputus driver dari $SsidUtama pukul $($putus.TimeCreated.ToString('HH:mm:ss')) - dihitung gagal." 'Yellow' }
+}
 $pindahUtama = $false
 if ($dg.Ssid -ne $SsidUtama) {
     $sigUtama = Get-SinyalMaks $dg.Name $SsidUtama
