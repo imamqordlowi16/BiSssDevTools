@@ -6,7 +6,11 @@ $Log = "$PSScriptRoot\Buka_Portal_ISE_via_WLAN.log"
 Start-Transcript -Path $Log -Force | Out-Null
 $IseHost = 'dc1isepsn02.corp.bi.go.id'
 $Url     = "https://$IseHost`:8443/portal/ClientProvisionStart.action?from=CLIENT_PROVISION"
-$DnsCorp = @('10.210.81.25','10.210.81.26')
+. "$PSScriptRoot\_KonfigJaringan.ps1"; $K = Get-KonfigJaringan   # IP dari Data\jaringan-ip.json
+$DnsCorp = @($K.DnsIse)
+$SubnetIse = $K.SubnetIse; $IseNet, $IseMask = ConvertTo-PrefixMask $SubnetIse
+# gateway WLAN-NON-CORP (mis. 10.149.x) -> pola "10.149.*" untuk membersihkan rute basi
+$GwNonCorpPola = (($K.GatewayNonCorpCadangan -split '\.')[0..1] -join '.') + '.*'
 $Nrpt    = '.corp.bi.go.id'
 
 $admin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
@@ -21,7 +25,7 @@ if ($Hapus) {
     $nrpt = @(Get-DnsClientNrptRule | Where-Object { $_.Namespace -eq $Nrpt })
     if ($nrpt) { $nrpt | Remove-DnsClientNrptRule -Force; Write-Host "[OK] $($nrpt.Count) aturan NRPT $Nrpt dicabut." -ForegroundColor Green }
     else { Write-Host "[LEWAT] Tidak ada aturan NRPT $Nrpt." -ForegroundColor Green }
-    $r32 = @(Get-NetRoute -AddressFamily IPv4 -ErrorAction SilentlyContinue | Where-Object { $_.DestinationPrefix -match '/32$' -and $_.NextHop -like '10.149.*' })
+    $r32 = @(Get-NetRoute -AddressFamily IPv4 -ErrorAction SilentlyContinue | Where-Object { $_.DestinationPrefix -match '/32$' -and $_.NextHop -like $GwNonCorpPola })
     if ($r32) { $r32 | Remove-NetRoute -Confirm:$false; Write-Host "[OK] $($r32.Count) rute /32 via gateway Wi-Fi lama (10.149.x) dicabut." -ForegroundColor Green }
     else { Write-Host "[LEWAT] Tidak ada rute /32 via 10.149.x." -ForegroundColor Green }
     ipconfig /flushdns | Out-Null
@@ -59,14 +63,14 @@ if ($HanyaJikaCaptive) {
 Write-Host "[1/4] Bersihkan rute basi ke 10.x via Wi-Fi ..."
 foreach ($store in 'ActiveStore','PersistentStore') {
     Get-NetRoute -AddressFamily IPv4 -PolicyStore $store | Where-Object {
-        $_.DestinationPrefix -like '10.*' -and $_.NextHop -ne '0.0.0.0' -and $_.NextHop -like '10.149.*' -and $_.NextHop -ne $wifiGw
+        $_.DestinationPrefix -like '10.*' -and $_.NextHop -ne '0.0.0.0' -and $_.NextHop -like $GwNonCorpPola -and $_.NextHop -ne $wifiGw
     } | ForEach-Object { Write-Host "   hapus [$store] $($_.DestinationPrefix) via $($_.NextHop)"; $_ | Remove-NetRoute -PolicyStore $store -Confirm:$false }
 }
 
-# 2. Rute ke DNS corp & subnet 10.210/16 via Wi-Fi (aktif saja)
-Write-Host "[2/4] Pasang rute 10.210.0.0/16 via $wifiGw ..."
-if (-not (Get-NetRoute -DestinationPrefix '10.210.0.0/16' -AddressFamily IPv4 | Where-Object NextHop -eq $wifiGw)) {
-    route.exe add 10.210.0.0 mask 255.255.0.0 $wifiGw metric 1 if $wifi.InterfaceIndex | Out-Null
+# 2. Rute ke DNS corp & subnet ISE via Wi-Fi (aktif saja)
+Write-Host "[2/4] Pasang rute $SubnetIse via $wifiGw ..."
+if (-not (Get-NetRoute -DestinationPrefix $SubnetIse -AddressFamily IPv4 | Where-Object NextHop -eq $wifiGw)) {
+    route.exe add $IseNet mask $IseMask $wifiGw metric 1 if $wifi.InterfaceIndex | Out-Null
 }
 
 # 3. DNS: nama *.corp.bi.go.id selalu ditanya ke DNS corp lewat Wi-Fi (NRPT), lalu resolve host ISE
@@ -78,7 +82,7 @@ $iseIp = $null
 foreach ($s in $DnsCorp) { $iseIp = (Resolve-DnsName $IseHost -Server $s -Type A -QuickTimeout | Where-Object IPAddress).IPAddress | Select-Object -First 1; if ($iseIp) { break } }
 if (-not $iseIp) {
     Write-Host "[GAGAL] $IseHost tidak bisa di-resolve lewat DNS corp ($($DnsCorp -join ',')) via Wi-Fi." -ForegroundColor Red
-    Write-Host "        Cek: ping -S $wifiIp 10.210.81.25 ; pastikan Wi-Fi masih $ssid." -ForegroundColor Yellow
+    Write-Host "        Cek: ping -S $wifiIp $($DnsCorp[0]) ; pastikan Wi-Fi masih $ssid." -ForegroundColor Yellow
     Stop-Transcript | Out-Null; exit 2
 }
 Write-Host "   $IseHost = $iseIp"

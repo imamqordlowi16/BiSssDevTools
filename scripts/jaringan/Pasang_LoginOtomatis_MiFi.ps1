@@ -67,9 +67,31 @@ if ($Pasang) {
     $tLogon    = New-ScheduledTaskTrigger -AtLogOn -User $user
     $settings  = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -StartWhenAvailable -MultipleInstances IgnoreNew -ExecutionTimeLimit (New-TimeSpan -Minutes 3)
     $principal = New-ScheduledTaskPrincipal -UserId $user -LogonType Interactive -RunLevel Limited
-    Register-ScheduledTask -TaskName $TaskName -Action $action -Trigger $tJadwal, $tLogon -Settings $settings -Principal $principal `
-        -Description 'ZeenIQ Dev Tools: login otomatis portal Cisco ISE WLAN-PUBLIC-BI lewat MiFi HUAWEI-7492 (tiap 2 menit, hanya bila sesi habis).' -Force | Out-Null
-    Write-Host "[OK] Task '$TaskName' terpasang untuk $user - cek tiap 2 menit + saat login, tanpa admin." -ForegroundColor Green
+    $desc = 'ZeenIQ Dev Tools: login otomatis portal Cisco ISE WLAN-PUBLIC-BI (langsung / lewat MiFi) - saat Wi-Fi tersambung, tiap 2 menit & saat login Windows, hanya bila sesi habis.'
+    # Begitu Wi-Fi TERSAMBUNG (WLAN-AutoConfig 8001) -> login langsung jalan (jeda 6 dtk menunggu DHCP),
+    # tidak perlu menunggu jadwal 2 menit / membuka halaman login di browser.
+    $tWifi = $null
+    try {
+        $cls = Get-CimClass -ClassName MSFT_TaskEventTrigger -Namespace Root/Microsoft/Windows/TaskScheduler
+        $tWifi = New-CimInstance -CimClass $cls -ClientOnly
+        $tWifi.Subscription = '<QueryList><Query Id="0" Path="Microsoft-Windows-WLAN-AutoConfig/Operational"><Select Path="Microsoft-Windows-WLAN-AutoConfig/Operational">*[System[(EventID=8001)]]</Select></Query></QueryList>'
+        $tWifi.Delay = 'PT6S'
+        $tWifi.Enabled = $true
+    } catch { $tWifi = $null }
+    $terpasang = $false
+    if ($tWifi) {
+        try {
+            Register-ScheduledTask -TaskName $TaskName -Action $action -Trigger $tJadwal, $tLogon, $tWifi -Settings $settings -Principal $principal -Description $desc -Force -ErrorAction Stop | Out-Null
+            $terpasang = $true
+            Write-Host "[OK] Task '$TaskName' terpasang untuk $user - login otomatis saat Wi-Fi tersambung, tiap 2 menit & saat login Windows (tanpa admin)." -ForegroundColor Green
+        } catch {
+            Write-Host "[i] Pemicu 'saat Wi-Fi tersambung' tidak bisa dipasang tanpa admin ($($_.Exception.Message)) - pakai jadwal 2 menit saja." -ForegroundColor Yellow
+        }
+    }
+    if (-not $terpasang) {
+        Register-ScheduledTask -TaskName $TaskName -Action $action -Trigger $tJadwal, $tLogon -Settings $settings -Principal $principal -Description $desc -Force | Out-Null
+        Write-Host "[OK] Task '$TaskName' terpasang untuk $user - cek tiap 2 menit + saat login, tanpa admin." -ForegroundColor Green
+    }
     exit 0
 }
 

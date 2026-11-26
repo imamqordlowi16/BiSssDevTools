@@ -31,14 +31,16 @@ param(
 )
 
 $ErrorActionPreference = 'Continue'
-$SsidNonCorp  = 'WLAN-NON-CORP'
+$SsidNonCorp  = 'WLAN-NON-CORP'   # ditimpa dari pengaturan di bawah
 $TaskName     = 'ZeenIQ-AutoSambung-WLAN-NON-CORP'
 $Nrpt         = '.corp.bi.go.id'
 $SetupScript  = Join-Path $PSScriptRoot 'setup_3_koneksi.ps1'
 $IseScript    = Join-Path $PSScriptRoot 'Buka_Portal_ISE_via_WLAN.ps1'
-$TimesheetUrl = 'http://10.28.224.55:8080/timesheets'
-$DevProbe     = @{ IP = '10.239.19.130'; Port = 18002; Nama = 'devbisssapp01' }
-$TsProbe      = @{ IP = '10.28.224.55';  Port = 8080;  Nama = 'Timesheets' }
+. "$PSScriptRoot\_KonfigJaringan.ps1"; $K = Get-KonfigJaringan   # IP dari Data\jaringan-ip.json
+$TimesheetUrl = $K.Timesheet.Url
+$DevProbe     = $K.ProbeDev
+$TsProbe      = $K.Timesheet
+$SsidNonCorp  = $K.SsidNonCorp
 
 function Log([string]$Msg, [string]$Color = 'Gray') { Write-Host $Msg -ForegroundColor $Color }
 function Test-Port([string]$IP, [int]$Port, [int]$TimeoutMs = 4000) {

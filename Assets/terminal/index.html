@@ -171,12 +171,20 @@
     }
   }
 
+  // Cadangan: fokus di halaman tapi BUKAN di xterm (mis. baris tab) -> handler xterm tidak terpanggil.
+  window.addEventListener('keydown', (e) => {
+    if (e.__zq || !e.ctrlKey || !e.shiftKey || e.altKey) return;
+    if (e.code === 'KeyT') { e.preventDefault(); send({ type: 'newTabRequest' }); }
+    else if (e.code === 'KeyW' && activeId != null) { e.preventDefault(); send({ type: 'close', id: activeId }); }
+  });
+
   function handleKey(t, e) {
     if (e.type !== 'keydown') return true;
     const k = e.key.toLowerCase();
     // Ctrl+Shift+T = tab baru, Ctrl+Shift+W = tutup tab, Ctrl+Tab / Ctrl+Shift+Tab = pindah tab.
-    if (e.ctrlKey && e.shiftKey && k === 't') { send({ type: 'newTabRequest' }); return false; }
-    if (e.ctrlKey && e.shiftKey && k === 'w') { send({ type: 'close', id: t.id }); return false; }
+    // Pakai e.code (tombol fisik): e.key bisa lain saat tata letak keyboard/IME aktif.
+    if (e.ctrlKey && e.shiftKey && !e.altKey && e.code === 'KeyT') { e.__zq = true; e.preventDefault(); send({ type: 'newTabRequest' }); return false; }
+    if (e.ctrlKey && e.shiftKey && !e.altKey && e.code === 'KeyW') { e.__zq = true; e.preventDefault(); send({ type: 'close', id: t.id }); return false; }
     if (e.ctrlKey && e.key === 'Tab') {
       const ids = [...tabs.keys()];
       if (ids.length > 1) {

@@ -28,41 +28,49 @@ param(
     [switch]$DryRun,
     [switch]$NoConnect,
     # Jalur Internet: Otomatis = Ethernet/tethering USB bila ada, kalau tidak dongle Wi-Fi (Wi-Fi kedua).
-    [ValidateSet('Otomatis', 'Ethernet', 'Dongle')]
-    [string]$Internet = 'Otomatis',
+    # Tidak diisi = pakai pilihan di Data\jaringan-ip.json (JalurInternet) - diatur dari tab Jaringan.
+    [ValidateSet('Otomatis', 'Ethernet', 'Dongle', 'NonCorp')]
+    [string]$Internet,
     # Adapter yang dipakai saat MENYAMBUNGKAN otomatis ke WLAN-NON-CORP (yang sudah tersambung selalu dikenali,
     # lewat adapter mana pun): Otomatis = yang masih bebas, utamakan Wi-Fi bawaan laptop.
+    # Tidak diisi = pakai WifiNonCorpLewat di Data\jaringan-ip.json.
     [ValidateSet('Otomatis', 'Bawaan', 'Dongle')]
-    [string]$WifiNonCorp = 'Otomatis'
+    [string]$WifiNonCorp
 )
 
 $ErrorActionPreference = 'Continue'
-$SsidNonCorp    = 'WLAN-NON-CORP'
 $MetricEthernet = 5
 $MetricWifi     = 45
 $MetricCadangan = 25   # Internet kedua (mis. dongle saat Ethernet juga ada)
-$GwNonCorpDefault = '10.149.0.1'   # dipakai hanya bila DHCP WLAN-NON-CORP tidak memberi gateway
+
+# IP / host / subnet TIDAK ditulis di sini lagi - dibaca dari Data\jaringan-ip.json
+# (edit lewat tombol "Atur IP & Host" di tab Jaringan ZeenIQ Dev Tools). Lihat _KonfigJaringan.ps1.
+. "$PSScriptRoot\_KonfigJaringan.ps1"
+$K = Get-KonfigJaringan
+# pilihan jalur dari tab Jaringan (berlaku juga untuk Mode Dev/DB, auto-sambung & file .bat)
+if (-not $Internet)    { $Internet    = if (@('Otomatis', 'Ethernet', 'Dongle', 'NonCorp') -contains "$($K.JalurInternet)")    { "$($K.JalurInternet)" }    else { 'Otomatis' } }
+if (-not $WifiNonCorp) { $WifiNonCorp = if (@('Otomatis', 'Bawaan', 'Dongle')   -contains "$($K.WifiNonCorpLewat)") { "$($K.WifiNonCorpLewat)" } else { 'Otomatis' } }
+Write-Host "  [i] Jalur Internet: $Internet | WLAN-NON-CORP lewat: $WifiNonCorp" -ForegroundColor DarkGray
+$SsidNonCorp      = $K.SsidNonCorp
+$GwNonCorpDefault = $K.GatewayNonCorpCadangan   # dipakai hanya bila DHCP WLAN-NON-CORP tidak memberi gateway
 
 # Host internal yang diuji & dirutekan. Port hanya untuk uji koneksi.
-$Hosts = @(
-    @{ IP = '10.239.19.130'; Port = 18002; Nama = 'devbisssapp01' },
-    @{ IP = '10.239.13.100'; Port = 1521;  Nama = 'devbisssdbo01' },
-    @{ IP = '10.239.14.38';  Port = 1521;  Nama = 'devgmmpdbs01' },
-    @{ IP = '10.230.84.29';  Port = 1521;  Nama = 'DEV02' },
-    @{ IP = '10.161.1.82';   Port = 443;   Nama = 'coordinator-impala' },
-    @{ IP = '10.161.10.135'; Port = 1521;  Nama = 'dc1sssdb002' }
-)
-$HostAtrust = @{ IP = '10.28.224.213'; Port = 1521; Nama = 'DB via aTrust' }
+$Hosts      = $K.HostDev
+$HostAtrust = $K.HostAtrust
 
 # Subnet pendukung yang hanya dipasang di MODE KANTOR (lewat WLAN-NON-CORP)
-$SubnetNonCorp = @('10.239.0.0/16', '10.230.0.0/16', '10.161.0.0/16', '10.210.0.0/16', '10.240.0.0/16', '10.149.0.0/16')
+$SubnetNonCorp = $K.SubnetNonCorp
 
-# Semua prefix yang pernah dipasang skrip lama -> selalu dibersihkan dulu
-$PrefixKelola = @($SubnetNonCorp) + @('10.0.0.0/8') + @($Hosts | ForEach-Object { "$($_.IP)/32" }) + @("$($HostAtrust.IP)/32")
+# Semua prefix yang pernah dipasang (daftar sekarang + daftar BAWAAN lama) -> selalu dibersihkan dulu,
+# supaya rute ke IP lama ikut terhapus setelah IP diganti di file pengaturan.
+$KB = Get-KonfigJaringanBawaan
+$PrefixKelola = @($SubnetNonCorp) + @($KB.SubnetNonCorp) + @('10.0.0.0/8') +
+    @(@($Hosts) + @($KB.HostDev) | ForEach-Object { "$($_.IP)/32" }) + @("$($HostAtrust.IP)/32", "$($KB.HostAtrust.IP)/32") |
+    Select-Object -Unique
 
 Write-Host "====================================================================" -ForegroundColor Cyan
 Write-Host "       KONFIGURASI SPLIT ROUTING 3 KONEKSI SIMULTAN" -ForegroundColor Cyan
-Write-Host "   Ethernet -> Internet | WLAN-NON-CORP -> Dev/DB | aTrust -> 10.28.224.213" -ForegroundColor Cyan
+Write-Host "   Ethernet -> Internet | $SsidNonCorp -> Dev/DB | aTrust -> $($HostAtrust.IP)" -ForegroundColor Cyan
 if ($DryRun) { Write-Host "       MODE: DRY RUN - tidak ada yang diubah" -ForegroundColor Magenta }
 Write-Host "====================================================================" -ForegroundColor Cyan
 Write-Host ""
@@ -224,7 +232,7 @@ $ethernet = switch ($Internet) {
     'Dongle'   { $dongle | Select-Object -First 1 }
     default    { @($kabel) + @($dongle) | Select-Object -First 1 }
 }
-if (-not $ethernet -and $Internet -ne 'Otomatis') {
+if (-not $ethernet -and $Internet -notin @('Otomatis', 'NonCorp')) {
     Write-Host "  [!] -Internet $Internet diminta tapi adapter itu tidak aktif / tanpa gateway; pakai yang tersedia." -ForegroundColor Yellow
     $ethernet = @($kabel) + @($dongle) | Select-Object -First 1
 }
@@ -283,7 +291,39 @@ Write-Host ""
 # 3. PRIORITAS INTERNET
 # ====================================================================
 Write-Host "[3/6] Mengatur prioritas jalur Internet..." -ForegroundColor Yellow
-if ($ethernet -and $ethGw) {
+# Windows memilih rute default dari (metric RUTE + metric ADAPTER). Metric rute default ditetapkan saat
+# rute dibuat (ikut metric adapter waktu itu) dan TIDAK ikut berubah saat metric adapter diubah - 26-11:
+# Wi-Fi adapter 5 + rute 45 = 50 kalah dari Ethernet adapter 25 + rute 5 = 30. Jadi rute default ikut diatur.
+function Set-DefaultRouteMetric($adapter, [int]$m) {
+    if (-not $adapter -or $DryRun) { return }
+    Get-NetRoute -InterfaceIndex $adapter.InterfaceIndex -DestinationPrefix '0.0.0.0/0' -AddressFamily IPv4 -ErrorAction SilentlyContinue |
+        Set-NetRoute -RouteMetric $m -ErrorAction SilentlyContinue
+}
+if ($Internet -eq 'NonCorp' -and $wifi -and $wifiGw) {
+    Set-DefaultRouteMetric $wifi 0
+    foreach ($c in @(@($kabel) + @($dongle) | Where-Object { $_ })) { Set-DefaultRouteMetric $c 50 }
+} elseif ($ethernet -and $ethGw) {
+    Set-DefaultRouteMetric $ethernet 0
+    if ($wifi) { Set-DefaultRouteMetric $wifi 50 }
+    foreach ($c in $cadangan) { Set-DefaultRouteMetric $c 25 }
+}
+if ($Internet -eq 'NonCorp' -and $wifi -and $wifiGw) {
+    # Jalur Internet = WLAN-NON-CORP (mis. saat hotspot membagikan WLAN-NON-CORP: Windows hanya
+    # me-NAT lalu lintas laptop lain di koneksi yang dibagikan, jadi Internet laptop ini juga harus
+    # lewat situ - kalau tidak, laptop lain dapat Dev/DB tapi tidak dapat Internet). Ethernet/modem/
+    # dongle tetap tersambung sebagai cadangan.
+    if (-not $DryRun) { Set-NetIPInterface -InterfaceIndex $wifi.InterfaceIndex -AddressFamily IPv4 -InterfaceMetric $MetricEthernet -ErrorAction SilentlyContinue }
+    Write-Host "  [OK] $($wifi.Name) ($SsidNonCorp) metric = $MetricEthernet (Internet utama - pilihan 'WLAN-NON-CORP')." -ForegroundColor Green
+    foreach ($c in @(@($kabel) + @($dongle) | Where-Object { $_ })) {
+        if (-not $DryRun) { Set-NetIPInterface -InterfaceIndex $c.InterfaceIndex -AddressFamily IPv4 -InterfaceMetric $MetricCadangan -ErrorAction SilentlyContinue }
+        Write-Host "  [OK] $($c.Name) metric = $MetricCadangan (Internet cadangan)." -ForegroundColor Green
+    }
+} elseif ($Internet -eq 'NonCorp') {
+    Write-Host "  [!] Jalur Internet 'WLAN-NON-CORP' dipilih tapi $SsidNonCorp tidak tersambung - pakai jalur lain." -ForegroundColor Yellow
+}
+if ($Internet -eq 'NonCorp' -and $wifi -and $wifiGw) {
+    # sudah diatur di atas
+} elseif ($ethernet -and $ethGw) {
     if (-not $DryRun) { Set-NetIPInterface -InterfaceIndex $ethernet.InterfaceIndex -AddressFamily IPv4 -InterfaceMetric $MetricEthernet -ErrorAction SilentlyContinue }
     Write-Host "  [OK] $($ethernet.Name) metric = $MetricEthernet (Internet utama)." -ForegroundColor Green
     if ($wifi) {
@@ -330,14 +370,27 @@ Write-Host "[5/6] Mendaftarkan hostname internal ke file hosts..." -ForegroundCo
 try {
     $hostsPath = "$env:SystemRoot\System32\drivers\etc\hosts"
     $hostsContent = Get-Content $hostsPath -Raw -ErrorAction SilentlyContinue
-    $entries = @(
-        '10.239.19.130  devbisssapp01  devbisssapp01.corp.bi.go.id',
-        '10.239.14.38   devgmmpdbs01   devgmmpdbs01.corp.bi.go.id',
-        '10.239.13.100  devbisssdbo01  devbisssdbo01.corp.bi.go.id',
-        '10.230.84.29   DEV02          dev02                      dev02.corp.bi.go.id',
-        '10.161.1.82    coordinator-impala.apps.dc1pdaecsr01.corp.bi.go.id',
-        '10.161.10.135  dc1sssdb002.corp.bi.go.id  dc1sssdbo02.corp.bi.go.id  sss.corp.bi.go.id'
-    )
+    # dari daftar HostDev (IP + Hostname) di file pengaturan
+    $entries = @($Hosts | Where-Object { @($_.Hostname).Count -gt 0 } | ForEach-Object { "$($_.IP)  $(@($_.Hostname) -join '  ')" })
+
+    # IP server diganti -> baris lama "IP-lama  hostname-yang-sama" harus dibuang, kalau tidak
+    # Windows tetap memakai baris lama (baris pertama yang cocok yang menang).
+    $ipOf = @{}
+    foreach ($h in $Hosts) { foreach ($n in @($h.Hostname)) { if ($n) { $ipOf[$n.ToLowerInvariant()] = "$($h.IP)" } } }
+    $lines = @(Get-Content $hostsPath -ErrorAction SilentlyContinue)
+    $basi = @($lines | Where-Object {
+        $t = ($_ -replace '#.*$', '').Trim() -split '\s+'
+        if ($t.Count -lt 2) { return $false }
+        foreach ($n in $t[1..($t.Count - 1)]) { $want = $ipOf[$n.ToLowerInvariant()]; if ($want -and $want -ne $t[0]) { return $true } }
+        return $false })
+    if ($basi.Count -gt 0) {
+        if (-not $DryRun) {
+            Set-Content -Path $hostsPath -Value @($lines | Where-Object { $basi -notcontains $_ }) -Encoding ASCII
+            $hostsContent = Get-Content $hostsPath -Raw -ErrorAction SilentlyContinue
+        }
+        Write-Host "  [OK] $($basi.Count) entri hosts dengan IP lama dihapus." -ForegroundColor Green
+    }
+
     $toAdd = @()
     foreach ($e in $entries) {
         $parts = $e -split '\s+'

@@ -23,8 +23,9 @@ param(
     [string]$StatusFile = '',
     [string]$CredFile = '',
     [string]$Alasan = 'Manual',
-    [string]$MifiSubnet = '192.168.8.',
-    [string[]]$Ssids = @('WLAN-PUBLIC-BI', 'HUAWEI-7492'),
+    # Subnet MiFi/modem yang tersambung lewat Wi-Fi ATAU kabel USB (RNDIS): HUAWEI 192.168.8.x, XinXun 192.168.100.x
+    [string[]]$MifiSubnet = @('192.168.8.', '192.168.100.'),
+    [string[]]$Ssids = @('WLAN-PUBLIC-BI', 'HUAWEI-7492', 'XinXun-7787'),   # XinXun-7787 = modem 4G dengan 'Internet Wi-Fi' ke WLAN-PUBLIC-BI
     [string]$PortalUrl = '',
     [switch]$DryRun
 )
@@ -80,7 +81,7 @@ foreach ($b in $blok) {
     if ($a) { $ip = $a.IPAddress; $via = "$nama/$ssid"; break }
 }
 if (-not $ip) {
-    $a = Get-NetIPAddress -AddressFamily IPv4 -ErrorAction SilentlyContinue | Where-Object { $_.IPAddress.StartsWith($MifiSubnet) } | Select-Object -First 1
+    $a = Get-NetIPAddress -AddressFamily IPv4 -ErrorAction SilentlyContinue | Where-Object { $ipx = $_.IPAddress; @($MifiSubnet | Where-Object { $ipx.StartsWith($_) }).Count -gt 0 } | Select-Object -First 1
     if ($a) { $ip = $a.IPAddress; $via = "$($a.InterfaceAlias)/MiFi" }
 }
 if (-not $ip) { Selesai 'LEWAT' "Tidak ada Wi-Fi yang tersambung ke $($Ssids -join ' / ') - lewati." -TanpaLog:(-not $interaktif) }
@@ -151,7 +152,47 @@ try {
         if ($act -notmatch '^https?:') { $act = if ($act.StartsWith('/')) { "$origin$act" } else { "$origin/portal/$act" } }
         $resp, $url = PisahUrl (CurlMifi ($a + $act))
     }
-    $pesanPortal = [regex]::Match($resp, '(?is)class="[^"]*(error|cisco-ise-login-error)[^"]*"[^>]*>\s*([^<]{3,160})').Groups[2].Value.Trim()
+    # 5b. Halaman "Success": sejak 24-11 siang ISE TIDAK langsung membuka internet - JavaScript halaman
+    #     itu (page.init doCoA:'true') yang memanggil DoCoA.action lalu memantau CheckCoAStatus.action.
+    #     Tanpa langkah ini login "berhasil" tapi tetap tertahan portal (terbukti di HP 25-11:
+    #     DoCoA -> {"status":"success"} -> CheckCoAStatus -> "complete" -> online).
+    $sukses = ($resp -match '(?is)<title[^>]*>\s*Success\s*</title>') -or ($resp -match 'You now have Internet access')
+    if ($resp -match "doCoA\s*:\s*'true'") {
+        $js = { param($k) [regex]::Match($resp, "\b$k\s*:\s*'([^']*)'").Groups[1].Value }
+        $coaUrl = & $js 'coaUrl'; if (-not $coaUrl) { $coaUrl = 'DoCoA.action' }
+        $pollUrl = & $js 'coaPollingUrl'
+        $delay = [regex]::Match($resp, "\bcoaDelay\s*:\s*'?(\d+)").Groups[1].Value; if (-not $delay) { $delay = '2' }
+        $tok = [regex]::Match($resp, 'name="token"\s+value="([^"]+)"').Groups[1].Value; if (-not $tok) { $tok = $token }
+        $sid = & $js 'sessionId'
+        $base = if ($url) { ([uri]$url).GetLeftPart('Path') -replace '[^/]*$', '' } else { "$origin/portal/" }
+        Log "Login diterima portal - meminta akses dibuka ($coaUrl)..."
+        Start-Sleep -Seconds ([int]$delay)
+        $a = @('--data-urlencode', "delayToCoA=$delay", '--data-urlencode', "coaType=$(& $js 'coaType')",
+               '--data-urlencode', "coaSource=$(& $js 'coaSource')", '--data-urlencode', "coaReason=$(& $js 'coaReason')",
+               '--data-urlencode', 'waitForCoA=true', '--data-urlencode', "token=$tok")
+        if ($sid) { $a += @('--data-urlencode', "portalSessionId=$sid") }
+        $r = CurlMifi ($a + "$base$coaUrl")
+        Log "DoCoA: $(($r -replace '\s+', ' ').Substring(0, [Math]::Min(160, ($r -replace '\s+', ' ').Length)))"
+        if ($pollUrl) {
+            for ($i = 0; $i -lt 5; $i++) {
+                Start-Sleep -Seconds 2
+                $p = CurlMifi @('--data-urlencode', "token=$tok", "$base$pollUrl")
+                if ($p -match '(?i)success|complete') { Log "CheckCoAStatus: $(($p -replace '\s+', ' ').Substring(0, [Math]::Min(120, ($p -replace '\s+', ' ').Length)))"; break }
+            }
+        }
+    }
+
+    # Halaman Success memuat templat popup "Your session has timed out" - itu BUKAN error.
+    $pesanPortal = if ($sukses) { '' } else { [regex]::Match($resp, '(?is)class="[^"]*(error|cisco-ise-login-error|ui-state-error|alert)[^"]*"[^>]*>\s*(?:<[^>]+>\s*)*([^<]{3,200})').Groups[2].Value.Trim() }
+    if (-not $pesanPortal -and -not $sukses) {
+        # pesan umum ISE yang tidak selalu ber-class error
+        $pesanPortal = [regex]::Match($resp, '(?i)(maximum[^<]{0,80}|exceed[^<]{0,80}|expired[^<]{0,80}|suspended[^<]{0,80}|invalid[^<]{0,80}|not authorized[^<]{0,80}|batas[^<]{0,80}|kedaluwarsa[^<]{0,80})').Groups[1].Value.Trim()
+    }
+    # Simpan halaman terakhir dari portal (tanpa nilai input tersembunyi/token) untuk dianalisis kalau gagal.
+    $jejak = "$LogFile.terakhir.html"
+    try {
+        "<!-- $(Get-Date -Format s) URL: $url -->`n" + ($resp -replace '(?i)(value=")[^"]*(")', '$1***$2') | Set-Content -Path $jejak -Encoding UTF8
+    } catch {}
 
     # 6. Verifikasi.
     #    ISE butuh waktu menerapkan otorisasi (CoA): 23-11 16:35 cek 5 detik -> masih portal ("GAGAL"),
@@ -160,7 +201,7 @@ try {
         Start-Sleep -Seconds 5
         if ((CurlMifi @('-i', $probe)) -match '^HTTP/\S+ 204') { Selesai 'OK' "Login portal BERHASIL - internet lewat $via aktif lagi ($ip), $(5 * ($i + 1)) detik setelah login." $true $ip }
     }
-    Selesai 'GAGAL' ("Login dikirim tapi masih ditahan portal." + $(if ($pesanPortal) { " Pesan portal: $pesanPortal" } else { " Cek username/password (Simpan Kredensial lagi)." })) $true $ip 5
+    Selesai 'GAGAL' ("Login dikirim tapi masih ditahan portal." + $(if ($pesanPortal) { " Pesan portal: $pesanPortal" } else { " Tidak ada pesan error dari portal - halaman terakhir disimpan di $jejak untuk dicek." })) $true $ip 5
 }
 finally {
     Remove-Item $jar -ErrorAction SilentlyContinue

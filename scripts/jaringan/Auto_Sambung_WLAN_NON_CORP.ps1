@@ -38,6 +38,8 @@ param(
 $ErrorActionPreference = 'Continue'
 $SsidNonCorp = 'WLAN-NON-CORP'
 $SetupScript = Join-Path $PSScriptRoot 'setup_3_koneksi.ps1'
+. "$PSScriptRoot\_KonfigJaringan.ps1"; $K = Get-KonfigJaringan   # IP dari Data\jaringan-ip.json
+$SubnetUtama = @($K.SubnetNonCorp)[0]   # rute /16 utama penanda split routing sudah terpasang
 $IseScript   = Join-Path $PSScriptRoot 'Buka_Portal_ISE_via_WLAN.ps1'
 $Mulai       = Get-Date
 
@@ -216,7 +218,7 @@ $script:Status.Gateway = $gw
 $wifi = Get-WifiAdapter
 
 # Rute sudah benar? (rute /16 utama via gateway Wi-Fi sekarang) + baru saja dipasang -> lewati.
-$ruteAda = [bool](Get-NetRoute -DestinationPrefix '10.239.0.0/16' -AddressFamily IPv4 -ErrorAction SilentlyContinue |
+$ruteAda = [bool](Get-NetRoute -DestinationPrefix $SubnetUtama -AddressFamily IPv4 -ErrorAction SilentlyContinue |
                   Where-Object { $_.NextHop -eq $gw -and $_.InterfaceIndex -eq $wifi.InterfaceIndex })
 $baruSaja = $false
 if ((Test-Path $StatusFile)) {
@@ -235,11 +237,11 @@ if ($ruteAda -and $baruSaja) {
     Log "Memasang ulang split routing (setup_3_koneksi.ps1 -NoConnect)..." 'Cyan'
     $outSetup = & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $SetupScript -NoConnect 2>&1
     $outSetup | ForEach-Object { Add-Content -Path $LogFile -Value ("    " + $_) -Encoding UTF8 }
-    $ruteAda = [bool](Get-NetRoute -DestinationPrefix '10.239.0.0/16' -AddressFamily IPv4 -ErrorAction SilentlyContinue |
+    $ruteAda = [bool](Get-NetRoute -DestinationPrefix $SubnetUtama -AddressFamily IPv4 -ErrorAction SilentlyContinue |
                       Where-Object { $_.NextHop -eq $gw })
     $script:Status.RuteDipasang = $ruteAda
     if ($ruteAda) { Log "Rute Dev/DB via $gw terpasang." 'Green' }
-    else { Log "Rute 10.239.0.0/16 via $gw TIDAK terlihat setelah setup - cek log setup di atas." 'Red' }
+    else { Log "Rute $SubnetUtama via $gw TIDAK terlihat setelah setup - cek log setup di atas." 'Red' }
 }
 
 # ---------------------------------------------------------------- 3. ISE (Cisco)
